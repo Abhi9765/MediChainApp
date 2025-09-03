@@ -19,7 +19,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -27,13 +26,70 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from '@/hooks/use-toast';
+
 
 type Complaint = (typeof mockComplaints)[0];
+
+const initialNewComplaintState = {
+    itemName: '',
+    batchNumber: '',
+    vendor: '',
+    issueType: '',
+    description: '',
+    attachment: null as File | null,
+};
 
 export default function InspectionPage() {
     const [complaints, setComplaints] = useState<Complaint[]>(mockComplaints);
     const [filter, setFilter] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [newComplaint, setNewComplaint] = useState(initialNewComplaintState);
+    const { toast } = useToast();
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = e.target;
+        setNewComplaint(prev => ({ ...prev, [id]: value }));
+    };
+
+    const handleSelectChange = (value: string) => {
+        setNewComplaint(prev => ({ ...prev, issueType: value }));
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setNewComplaint(prev => ({ ...prev, attachment: e.target.files?.[0] || null }));
+        }
+    };
+
+    const handleComplaintSubmit = () => {
+        if (!newComplaint.itemName || !newComplaint.issueType || !newComplaint.batchNumber) {
+            toast({
+                variant: 'destructive',
+                title: 'Missing Information',
+                description: 'Please fill in all required fields (Item, Batch No, Issue Type).',
+            });
+            return;
+        }
+
+        const newEntry: Complaint = {
+            id: `CMP${String(complaints.length + 1).padStart(3, '0')}`,
+            ...newComplaint,
+            status: 'Open',
+            raisedOn: new Date(),
+            assignedTo: 'Admin',
+            hasAttachment: !!newComplaint.attachment,
+        };
+
+        setComplaints(prev => [newEntry, ...prev]);
+        setIsDialogOpen(false);
+        setNewComplaint(initialNewComplaintState);
+
+        toast({
+            title: 'Complaint Raised',
+            description: `Issue for "${newComplaint.itemName}" has been logged.`,
+        });
+    };
 
     const filteredComplaints = complaints.filter(c => 
         c.itemName.toLowerCase().includes(filter.toLowerCase()) ||
@@ -157,51 +213,51 @@ export default function InspectionPage() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="item" className="text-right">Item</Label>
-                            <Input id="item" defaultValue="Paracetamol 500mg" className="col-span-3" />
+                            <Label htmlFor="itemName" className="text-right">Item</Label>
+                            <Input id="itemName" value={newComplaint.itemName} onChange={handleInputChange} className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="batch" className="text-right">Batch No.</Label>
-                            <Input id="batch" defaultValue="B12345" className="col-span-3" />
+                            <Label htmlFor="batchNumber" className="text-right">Batch No.</Label>
+                            <Input id="batchNumber" value={newComplaint.batchNumber} onChange={handleInputChange} className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="vendor" className="text-right">Vendor</Label>
-                            <Input id="vendor" defaultValue="Pharma Inc." className="col-span-3" />
+                            <Input id="vendor" value={newComplaint.vendor} onChange={handleInputChange} className="col-span-3" />
                         </div>
                          <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="issueType" className="text-right">Issue Type</Label>
-                            <Select>
+                            <Select onValueChange={handleSelectChange} value={newComplaint.issueType}>
                                 <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select an issue" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="defective">Defective</SelectItem>
-                                    <SelectItem value="duplicate">Duplicate</SelectItem>
-                                    <SelectItem value="expired">Expired</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
+                                    <SelectItem value="Defective">Defective</SelectItem>
+                                    <SelectItem value="Duplicate">Duplicate</SelectItem>
+                                    <SelectItem value="Expired">Expired</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="grid grid-cols-4 items-start gap-4">
                             <Label htmlFor="description" className="text-right pt-2">Description</Label>
-                            <Textarea id="description" placeholder="Describe the issue in detail..." className="col-span-3" />
+                            <Textarea id="description" value={newComplaint.description} onChange={handleInputChange} placeholder="Describe the issue in detail..." className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="attachment" className="text-right">Attachment</Label>
+                            <Label className="text-right">Attachment</Label>
                             <div className="col-span-3">
                                 <Button asChild variant="outline" size="sm">
                                     <label htmlFor="file-upload" className="cursor-pointer">
                                         <Paperclip className="h-4 w-4 mr-2" />
-                                        Upload Photo
+                                        {newComplaint.attachment ? newComplaint.attachment.name : "Upload Photo"}
                                     </label>
                                 </Button>
-                                <Input id="file-upload" type="file" className="hidden" />
+                                <Input id="file-upload" type="file" onChange={handleFileChange} className="hidden" />
                             </div>
                         </div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                        <Button type="submit" onClick={() => setIsDialogOpen(false)}>Submit Complaint</Button>
+                        <Button type="submit" onClick={handleComplaintSubmit}>Submit Complaint</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
