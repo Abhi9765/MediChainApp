@@ -13,7 +13,6 @@ import {
   Thermometer,
   Truck,
   User,
-  History,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,8 +29,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/inventory", icon: Archive, label: "Inventory" },
-    { href: "/stock-transfer", icon: Truck, label: "Stock Transfer" },
-    { href: "/transfers", icon: History, label: "Transfers" },
+    { href: "/transfers", icon: Truck, label: "Transfers" },
     { href: "/fridge-monitor", icon: Thermometer, label: "Fridge Monitor" },
     { href: "/reorder-supplies", icon: ShoppingCart, label: "Reorder Supplies" },
     { href: "/analytics", icon: BarChart3, label: "Analytics" },

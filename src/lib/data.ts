@@ -119,6 +119,59 @@ export const mockAnalytics = {
         { name: 'Consumables', value: 245, fill: 'hsl(var(--chart-2))' },
         { name: 'Surgical', value: 89, fill: 'hsl(var(--chart-3))' },
     ]
-}
+};
 
+type Transfer = {
+  id: string;
+  itemId: string;
+  itemName: string;
+  quantity: number;
+  from: string;
+  to: string;
+  date: Date;
+  status: "Completed" | "In Transit" | "Pending";
+};
+
+export const mockTransfers: Transfer[] = [
+  {
+    id: "TRN001",
+    itemId: "ITM004",
+    itemName: "Amoxicillin 250mg",
+    quantity: 50,
+    from: "Main Pharmacy",
+    to: "Pediatrics",
+    date: new Date("2024-05-20T10:30:00Z"),
+    status: "Completed",
+  },
+  {
+    id: "TRN002",
+    itemId: "ITM002",
+    itemName: "Sterile Gloves (M)",
+    quantity: 100,
+    from: "Surgery OT",
+    to: "ICU",
+    date: new Date("2024-05-22T14:00:00Z"),
+    status: "Completed",
+  },
+  {
+    id: "TRN003",
+    itemId: "ITM006",
+    itemName: "Aspirin 81mg",
+    quantity: 200,
+    from: "Cardiology",
+    to: "Main Pharmacy",
+    date: new Date(),
+    status: "In Transit",
+  },
+    {
+    id: "TRN004",
+    itemId: "ITM005",
+    itemName: "IV Drip Set",
+    quantity: 25,
+    from: "ICU",
+    to: "General Ward",
+    date: new Date(),
+    status: "Pending",
+  },
+];
     
