@@ -187,10 +187,10 @@ export default function StockTransferPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="toLocation">To Child Branch</Label>
+                                <Label htmlFor="toLocation">Hospital Name</Label>
                                 <Select onValueChange={setToLocation} value={toLocation} disabled={!selectedItem}>
                                     <SelectTrigger id="toLocation">
-                                        <SelectValue placeholder="Select destination branch" />
+                                        <SelectValue placeholder="Select destination hospital" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {availableLocations
@@ -227,7 +227,7 @@ export default function StockTransferPage() {
                             <TableHead>Item</TableHead>
                             <TableHead className="text-right">Qty</TableHead>
                             <TableHead>From</TableHead>
-                            <TableHead>To</TableHead>
+                            <TableHead>To Hospital</TableHead>
                             <TableHead>Status</TableHead>
                             </TableRow>
                         </TableHeader>
