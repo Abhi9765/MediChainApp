@@ -197,6 +197,22 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         <div className="lg:col-span-3 grid gap-4 auto-rows-min">
+             <Card>
+                <CardHeader>
+                    <CardTitle>Report Generation</CardTitle>
+                    <CardDescription>Download system reports in various formats.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-around gap-4">
+                     <Button variant="outline" className="w-full" onClick={() => handleReportDownload('CSV')}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download CSV
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => handleReportDownload('PDF')}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download PDF
+                    </Button>
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader>
                     <CardTitle>Wastage by Category</CardTitle>
@@ -212,22 +228,6 @@ export default function DashboardPage() {
                             <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={50} />
                         </PieChart>
                     </ChartContainer>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Report Generation</CardTitle>
-                    <CardDescription>Download system reports in various formats.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-around gap-4">
-                     <Button variant="outline" className="w-full" onClick={() => handleReportDownload('CSV')}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download CSV
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={() => handleReportDownload('PDF')}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download PDF
-                    </Button>
                 </CardContent>
             </Card>
         </div>
