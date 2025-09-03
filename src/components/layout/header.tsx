@@ -9,6 +9,7 @@ import {
   HeartPulse,
   LayoutDashboard,
   Menu,
+  ShieldAlert,
   ShoppingCart,
   Thermometer,
   Truck,
@@ -32,6 +33,7 @@ const navItems = [
     { href: "/transfers", icon: Truck, label: "Transfers" },
     { href: "/fridge-monitor", icon: Thermometer, label: "Fridge Monitor" },
     { href: "/reorder-supplies", icon: ShoppingCart, label: "Reorder Supplies" },
+    { href: "/inspection", icon: ShieldAlert, label: "Inspection" },
     { href: "/analytics", icon: BarChart3, label: "Analytics" },
     { href: "/drug-interaction", icon: FlaskConical, label: "Drug Interaction" },
 ];
