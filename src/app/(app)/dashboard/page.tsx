@@ -9,6 +9,8 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { addDays, isBefore, format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 const chartConfig: ChartConfig = {
   Medicines: {
@@ -54,11 +56,12 @@ export default function DashboardPage() {
     const totalItems = mockInventory.reduce((acc, item) => acc + item.quantity, 0);
 
     const handleReportDownload = (formatType: 'CSV' | 'PDF') => {
+        const headers = [
+            "ID", "Name", "Category", "Quantity", "Expiry Date", 
+            "Manufacturer", "Batch Number", "Location"
+        ];
+        
         if (formatType === 'CSV') {
-            const headers = [
-                "ID", "Name", "Category", "Quantity", "Expiry Date", 
-                "Manufacturer", "Batch Number", "Location"
-            ];
             const csvRows = [
                 headers.join(','),
                 ...mockInventory.map(item => [
@@ -89,10 +92,31 @@ export default function DashboardPage() {
                 description: `Your CSV report has been downloaded.`,
             });
         } else {
+             const doc = new jsPDF();
+             autoTable(doc, {
+                 head: [headers],
+                 body: mockInventory.map(item => [
+                     item.id,
+                     item.name,
+                     item.category,
+                     item.quantity,
+                     format(item.expiryDate, 'yyyy-MM-dd'),
+                     item.manufacturer,
+                     item.batchNumber,
+                     item.location
+                 ]),
+                 didDrawPage: (data) => {
+                     // Header
+                     doc.setFontSize(20);
+                     doc.setTextColor(40);
+                     doc.text("Inventory Report", data.settings.margin.left, 15);
+                 }
+             });
+             doc.save('inventory_report.pdf');
+
              toast({
-                title: 'Feature Not Available',
-                description: `PDF report generation is not yet implemented.`,
-                variant: 'destructive'
+                title: 'Report Downloaded',
+                description: `Your PDF report has been downloaded.`,
             });
         }
     }
