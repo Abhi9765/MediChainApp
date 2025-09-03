@@ -157,6 +157,7 @@ export default function InspectionPage() {
                                     <TableHead>Status</TableHead>
                                     <TableHead>Raised On</TableHead>
                                     <TableHead>Assigned To</TableHead>
+                                    <TableHead>Attachment</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -175,6 +176,9 @@ export default function InspectionPage() {
                                         <TableCell>{format(complaint.raisedOn, "dd MMM yyyy")}</TableCell>
                                         <TableCell>{complaint.assignedTo}</TableCell>
                                         <TableCell>
+                                            {complaint.hasAttachment && <Paperclip className="h-4 w-4" />}
+                                        </TableCell>
+                                        <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
@@ -192,7 +196,7 @@ export default function InspectionPage() {
                                     </TableRow>
                                 )) : (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center text-muted-foreground">
+                                        <TableCell colSpan={8} className="text-center text-muted-foreground">
                                             No complaints found.
                                         </TableCell>
                                     </TableRow>
