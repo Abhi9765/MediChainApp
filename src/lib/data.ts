@@ -73,6 +73,36 @@ export const mockInventory: InventoryItem[] = [
     batchNumber: "I55667",
     location: "Main Pharmacy",
   },
+  {
+    id: "ITM008",
+    name: "Insulin Glargine",
+    category: "Medicines",
+    quantity: 120,
+    expiryDate: new Date("2025-05-31"),
+    manufacturer: "Global Health",
+    batchNumber: "IG88990",
+    location: "Main Pharmacy",
+  },
+  {
+    id: "ITM009",
+    name: "Blood Bags",
+    category: "Consumables",
+    quantity: 40,
+    expiryDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
+    manufacturer: "MediSupply Co.",
+    batchNumber: "BB12345",
+    location: "ICU",
+  },
+  {
+    id: "ITM010",
+    name: "Vaccine XYZ",
+    category: "Medicines",
+    quantity: 75,
+    expiryDate: new Date("2024-10-31"),
+    manufacturer: "Pharma Inc.",
+    batchNumber: "VXYZ789",
+    location: "Pediatrics",
+  },
 ];
 
 export const mockAnalytics = {
@@ -90,3 +120,5 @@ export const mockAnalytics = {
         { name: 'Surgical', value: 89, fill: 'hsl(var(--chart-3))' },
     ]
 }
+
+    

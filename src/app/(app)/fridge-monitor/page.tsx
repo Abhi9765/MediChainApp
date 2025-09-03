@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Thermometer, Droplets, AlertTriangle, History, CalendarDays, Server } from "lucide-react";
+import { Thermometer, Droplets, AlertTriangle, History, CalendarDays, Server, Package } from "lucide-react";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import type { InventoryItem } from "@/types";
+import { mockInventory } from "@/lib/data";
+import { format, isBefore } from "date-fns";
 
 type Timeframe = "24h" | "7d" | "30d";
 
@@ -32,9 +35,10 @@ type Fridge = {
   history: FridgeDataPoint[];
   criticalEvents: CriticalEvent[];
   tempRange: { min: number, max: number };
+  contents: InventoryItem[];
 };
 
-const initialFridgeData: Omit<Fridge, "history" | "criticalEvents">[] = [
+const initialFridgeData: Omit<Fridge, "history" | "criticalEvents" | "contents">[] = [
   {
     id: "FR001",
     location: "Main Pharmacy",
@@ -61,7 +65,7 @@ const initialFridgeData: Omit<Fridge, "history" | "criticalEvents">[] = [
   },
   {
     id: "FR004",
-    location: "Pediatrics Ward",
+    location: "Pediatrics",
     temperature: -1.5,
     humidity: 48,
     status: "Danger",
@@ -111,6 +115,20 @@ const chartConfig = {
     humidity: { label: "Humidity (%)", color: "hsl(var(--chart-2))" }
 };
 
+const getBadgeVariant = (expiryDate: Date): 'destructive' | 'secondary' | 'outline' => {
+    const now = new Date();
+    const in60Days = new Date();
+    in60Days.setDate(now.getDate() + 60);
+
+    if (isBefore(expiryDate, now)) {
+      return "destructive";
+    }
+    if (isBefore(expiryDate, in60Days)) {
+      return "secondary";
+    }
+    return "outline";
+};
+
 export default function FridgeMonitorPage() {
     const [fridgeData, setFridgeData] = useState<Fridge[]>([]);
     const [timeframe, setTimeframe] = useState<Timeframe>("24h");
@@ -121,6 +139,7 @@ export default function FridgeMonitorPage() {
             ...fridge,
             history: generateHistory(fridge.temperature, fridge.humidity, timeframe),
             criticalEvents: generateCriticalEvents(fridge.id),
+            contents: mockInventory.filter(item => item.location === fridge.location)
         }));
         setFridgeData(initializedData);
     }, [timeframe]);
@@ -251,6 +270,41 @@ export default function FridgeMonitorPage() {
                             <p className="text-xs text-muted-foreground text-center py-4">No critical events in the selected timeframe.</p>
                         )}
                     </div>
+                    {fridgesToShow.length === 1 && (
+                      <div>
+                        <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                           <Package className="h-4 w-4"/> Fridge Contents
+                        </h4>
+                        {fridge.contents.length > 0 ? (
+                             <div className="border rounded-lg overflow-hidden text-xs">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Item Name</TableHead>
+                                            <TableHead>Temp Range</TableHead>
+                                            <TableHead>Expiry Date</TableHead>
+                                            <TableHead className="text-right">Stock</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {fridge.contents.map((item) => (
+                                            <TableRow key={item.id}>
+                                                <TableCell className="font-medium">{item.name}</TableCell>
+                                                <TableCell>{fridge.tempRange.min}°C - {fridge.tempRange.max}°C</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={getBadgeVariant(item.expiryDate)}>{format(item.expiryDate, "MMM yyyy")}</Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">{item.quantity}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                             </div>
+                        ) : (
+                            <p className="text-xs text-muted-foreground text-center py-4">This fridge is empty.</p>
+                        )}
+                      </div>
+                    )}
                  </CardContent>
             </Card>
         ))}
@@ -258,3 +312,5 @@ export default function FridgeMonitorPage() {
     </div>
   );
 }
+
+    
