@@ -8,6 +8,9 @@ import {
   FlaskConical,
   HeartPulse,
   LayoutDashboard,
+  Thermometer,
+  Truck,
+  History
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -22,6 +25,9 @@ import {
 const navItems = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/inventory", icon: Archive, label: "Inventory" },
+  { href: "/stock-transfer", icon: Truck, label: "Stock Transfer" },
+  { href: "/transfers", icon: History, label: "Transfers" },
+  { href: "/fridge-monitor", icon: Thermometer, label: "Fridge Monitor" },
   { href: "/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/drug-interaction", icon: FlaskConical, label: "Drug Interaction" },
 ];
@@ -49,7 +55,7 @@ export function Sidebar() {
                     size="icon"
                     className={cn(
                       "rounded-lg",
-                      pathname === item.href
+                      pathname.startsWith(item.href)
                         ? "bg-muted text-primary"
                         : "text-muted-foreground"
                     )}
