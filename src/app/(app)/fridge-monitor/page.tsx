@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import type { InventoryItem } from "@/types";
 import { mockInventory } from "@/lib/data";
-import { format, isBefore } from "date-fns";
+import { format, isBefore, addDays } from "date-fns";
 
 type Timeframe = "24h" | "7d" | "30d";
 
@@ -115,18 +115,17 @@ const chartConfig = {
     humidity: { label: "Humidity (%)", color: "hsl(var(--chart-2))" }
 };
 
-const getBadgeVariant = (expiryDate: Date): 'destructive' | 'secondary' | 'outline' => {
+const getItemStatus = (expiryDate: Date): { text: string; variant: "destructive" | "secondary" | "outline" } => {
     const now = new Date();
-    const in60Days = new Date();
-    in60Days.setDate(now.getDate() + 60);
+    const in60Days = addDays(now, 60);
 
     if (isBefore(expiryDate, now)) {
-      return "destructive";
+      return { text: "Expired", variant: "destructive" };
     }
     if (isBefore(expiryDate, in60Days)) {
-      return "secondary";
+      return { text: "Near Expiry", variant: "secondary" };
     }
-    return "outline";
+    return { text: "Good", variant: "outline" };
 };
 
 export default function FridgeMonitorPage() {
@@ -281,22 +280,28 @@ export default function FridgeMonitorPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Item Name</TableHead>
+                                            <TableHead>Manufacturer</TableHead>
                                             <TableHead>Temp Range</TableHead>
                                             <TableHead>Expiry Date</TableHead>
+                                            <TableHead>Status</TableHead>
                                             <TableHead className="text-right">Stock</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {fridge.contents.map((item) => (
+                                        {fridge.contents.map((item) => {
+                                            const status = getItemStatus(item.expiryDate);
+                                            return (
                                             <TableRow key={item.id}>
                                                 <TableCell className="font-medium">{item.name}</TableCell>
+                                                <TableCell>{item.manufacturer}</TableCell>
                                                 <TableCell>{fridge.tempRange.min}°C - {fridge.tempRange.max}°C</TableCell>
+                                                <TableCell>{format(item.expiryDate, "MMM yyyy")}</TableCell>
                                                 <TableCell>
-                                                    <Badge variant={getBadgeVariant(item.expiryDate)}>{format(item.expiryDate, "MMM yyyy")}</Badge>
+                                                    <Badge variant={status.variant}>{status.text}</Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">{item.quantity}</TableCell>
                                             </TableRow>
-                                        ))}
+                                        )})}
                                     </TableBody>
                                 </Table>
                              </div>
@@ -312,5 +317,3 @@ export default function FridgeMonitorPage() {
     </div>
   );
 }
-
-    
