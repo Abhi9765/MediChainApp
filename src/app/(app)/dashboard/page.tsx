@@ -1,12 +1,15 @@
+
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
-import { ArrowDown, ArrowUp, PackageOpen, TriangleAlert } from "lucide-react";
+import { ArrowDown, ArrowUp, PackageOpen, TriangleAlert, FileDown, ArchiveX } from "lucide-react";
 import type { ChartConfig } from "@/components/ui/chart";
 import { addDays, isBefore } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 const chartConfig: ChartConfig = {
   Medicines: {
@@ -42,10 +45,21 @@ const pieChartConfig = {
 } satisfies ChartConfig;
 
 export default function DashboardPage() {
+    const { toast } = useToast();
     const nearExpiryThreshold = addDays(new Date(), 60);
+    const lowStockThreshold = 100;
+
     const nearExpiryItems = mockInventory.filter(item => isBefore(item.expiryDate, nearExpiryThreshold) && isBefore(new Date(), item.expiryDate)).length;
     const expiredItems = mockInventory.filter(item => isBefore(item.expiryDate, new Date())).length;
+    const lowStockItems = mockInventory.filter(item => item.quantity < lowStockThreshold).length;
     const totalItems = mockInventory.reduce((acc, item) => acc + item.quantity, 0);
+
+    const handleReportDownload = (format: 'CSV' | 'PDF') => {
+        toast({
+            title: 'Generating Report',
+            description: `Your ${format} report is being downloaded.`,
+        });
+    }
 
   return (
     <div className="grid gap-6">
@@ -58,6 +72,16 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{totalItems.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
+            <ArchiveX className="h-4 w-4 text-yellow-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{lowStockItems}</div>
+            <p className="text-xs text-muted-foreground">Below threshold of 100 units</p>
           </CardContent>
         </Card>
         <Card>
@@ -78,16 +102,6 @@ export default function DashboardPage() {
           <CardContent>
             <div className="text-2xl font-bold">{expiredItems}</div>
             <p className="text-xs text-muted-foreground">-5% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Stock Turnaround</CardTitle>
-            <ArrowUp className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12.5 days</div>
-            <p className="text-xs text-muted-foreground">+2% faster than last month</p>
           </CardContent>
         </Card>
       </div>
@@ -118,24 +132,44 @@ export default function DashboardPage() {
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className="lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Wastage by Category</CardTitle>
-             <CardDescription>Breakdown of expired items in the last quarter.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 pb-0">
-             <ChartContainer
-                config={pieChartConfig}
-                className="mx-auto aspect-square max-h-[300px]"
-            >
-                <PieChart>
-                    <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                    <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={60} />
-                </PieChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-3 grid gap-4 auto-rows-min">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Wastage by Category</CardTitle>
+                    <CardDescription>Breakdown of expired items in the last quarter.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 pb-0 -mt-4">
+                    <ChartContainer
+                        config={pieChartConfig}
+                        className="mx-auto aspect-square max-h-[250px]"
+                    >
+                        <PieChart>
+                            <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
+                            <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={50} />
+                        </PieChart>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Report Generation</CardTitle>
+                    <CardDescription>Download system reports in various formats.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex justify-around gap-4">
+                     <Button variant="outline" className="w-full" onClick={() => handleReportDownload('CSV')}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download CSV
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => handleReportDownload('PDF')}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download PDF
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+    
