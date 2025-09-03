@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -7,7 +6,7 @@ import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
 import { ArrowDown, ArrowUp, PackageOpen, TriangleAlert, FileDown, ArchiveX } from "lucide-react";
 import type { ChartConfig } from "@/components/ui/chart";
-import { addDays, isBefore } from "date-fns";
+import { addDays, isBefore, format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -54,11 +53,48 @@ export default function DashboardPage() {
     const lowStockItems = mockInventory.filter(item => item.quantity < lowStockThreshold).length;
     const totalItems = mockInventory.reduce((acc, item) => acc + item.quantity, 0);
 
-    const handleReportDownload = (format: 'CSV' | 'PDF') => {
-        toast({
-            title: 'Generating Report',
-            description: `Your ${format} report is being downloaded.`,
-        });
+    const handleReportDownload = (formatType: 'CSV' | 'PDF') => {
+        if (formatType === 'CSV') {
+            const headers = [
+                "ID", "Name", "Category", "Quantity", "Expiry Date", 
+                "Manufacturer", "Batch Number", "Location"
+            ];
+            const csvRows = [
+                headers.join(','),
+                ...mockInventory.map(item => [
+                    item.id,
+                    `"${item.name.replace(/"/g, '""')}"`, // Handle quotes in name
+                    item.category,
+                    item.quantity,
+                    format(item.expiryDate, 'yyyy-MM-dd'),
+                    `"${item.manufacturer.replace(/"/g, '""')}"`,
+                    item.batchNumber,
+                    item.location
+                ].join(','))
+            ];
+            
+            const csvString = csvRows.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'inventory_report.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            toast({
+                title: 'Report Downloaded',
+                description: `Your CSV report has been downloaded.`,
+            });
+        } else {
+             toast({
+                title: 'Feature Not Available',
+                description: `PDF report generation is not yet implemented.`,
+                variant: 'destructive'
+            });
+        }
     }
 
   return (
@@ -171,5 +207,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
