@@ -105,7 +105,7 @@ export default function StockTransferPage() {
         setToLocation('');
     }
 
-    const availableLocations = ["Main Pharmacy", "ICU", "Surgery OT", "Pediatrics", "Cardiology", "General Ward"];
+    const availableLocations = ["North Branch Clinic", "Southside Medical Center", "East Wing Hospital", "West End Health Hub", "Downtown Urgent Care"];
 
     const getStatusVariant = (status: Transfer['status']) => {
         switch(status) {
@@ -126,7 +126,7 @@ export default function StockTransferPage() {
                             Create Stock Transfer
                         </CardTitle>
                         <CardDescription>
-                            Move inventory items from one location to another.
+                            Move inventory from main storage to a child branch.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -187,10 +187,10 @@ export default function StockTransferPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="toLocation">To Location</Label>
+                                <Label htmlFor="toLocation">To Child Branch</Label>
                                 <Select onValueChange={setToLocation} value={toLocation} disabled={!selectedItem}>
                                     <SelectTrigger id="toLocation">
-                                        <SelectValue placeholder="Select destination" />
+                                        <SelectValue placeholder="Select destination branch" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {availableLocations
@@ -216,7 +216,7 @@ export default function StockTransferPage() {
                  <CardHeader>
                     <CardTitle>Transfer History</CardTitle>
                     <CardDescription>
-                        Log of all inventory movements.
+                        Log of all inventory movements to child branches.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
