@@ -93,7 +93,17 @@ export default function DashboardPage() {
             });
         } else {
              const doc = new jsPDF();
+             const reportTitle = "Inventory Report";
+             const reportDate = `Generated on: ${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`;
+
+             doc.setFontSize(18);
+             doc.text(reportTitle, 14, 22);
+             doc.setFontSize(11);
+             doc.setTextColor(100);
+             doc.text(reportDate, 14, 28);
+             
              autoTable(doc, {
+                 startY: 35,
                  head: [headers],
                  body: mockInventory.map(item => [
                      item.id,
@@ -105,12 +115,6 @@ export default function DashboardPage() {
                      item.batchNumber,
                      item.location
                  ]),
-                 didDrawPage: (data) => {
-                     // Header
-                     doc.setFontSize(20);
-                     doc.setTextColor(40);
-                     doc.text("Inventory Report", data.settings.margin.left, 15);
-                 }
              });
              doc.save('inventory_report.pdf');
 
