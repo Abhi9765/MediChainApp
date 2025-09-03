@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { Thermometer, Droplets, AlertTriangle, History, CalendarDays } from "lucide-react";
+import { Thermometer, Droplets, AlertTriangle, History, CalendarDays, Server } from "lucide-react";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -114,6 +114,7 @@ const chartConfig = {
 export default function FridgeMonitorPage() {
     const [fridgeData, setFridgeData] = useState<Fridge[]>([]);
     const [timeframe, setTimeframe] = useState<Timeframe>("24h");
+    const [selectedFridge, setSelectedFridge] = useState<string>("all");
 
     useEffect(() => {
         const initializedData = initialFridgeData.map(fridge => ({
@@ -137,6 +138,10 @@ export default function FridgeMonitorPage() {
       return 'destructive';
   }
 
+  const fridgesToShow = selectedFridge === 'all' 
+    ? fridgeData 
+    : fridgeData.filter(f => f.id === selectedFridge);
+
   return (
     <div className="flex flex-col gap-6">
       <Card>
@@ -148,25 +153,41 @@ export default function FridgeMonitorPage() {
                 </CardTitle>
                 <CardDescription>Live status overview of all refrigerated storage units.</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5 text-muted-foreground"/>
-                 <Select onValueChange={(value) => setTimeframe(value as Timeframe)} value={timeframe}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select timeframe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="24h">Last 24 Hours</SelectItem>
-                        <SelectItem value="7d">Last 7 Days</SelectItem>
-                        <SelectItem value="30d">Last 30 Days</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-2">
+                    <Server className="h-5 w-5 text-muted-foreground"/>
+                    <Select onValueChange={setSelectedFridge} value={selectedFridge}>
+                        <SelectTrigger className="w-[200px]">
+                            <SelectValue placeholder="Select Fridge" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Fridges</SelectItem>
+                            {fridgeData.map(fridge => (
+                                <SelectItem key={fridge.id} value={fridge.id}>{fridge.location}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                    <CalendarDays className="h-5 w-5 text-muted-foreground"/>
+                    <Select onValueChange={(value) => setTimeframe(value as Timeframe)} value={timeframe}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select timeframe" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="24h">Last 24 Hours</SelectItem>
+                            <SelectItem value="7d">Last 7 Days</SelectItem>
+                            <SelectItem value="30d">Last 30 Days</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
         </CardHeader>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-        {fridgeData.map((fridge) => (
-            <Card key={fridge.id} className="flex flex-col">
+      <div className={`grid gap-6 ${fridgesToShow.length === 1 ? 'grid-cols-1' : 'md:grid-cols-1 lg:grid-cols-2'}`}>
+        {fridgesToShow.map((fridge) => (
+            <Card key={fridge.id} className={`flex flex-col ${fridgesToShow.length === 1 ? 'lg:col-span-2' : ''}`}>
                  <CardHeader>
                     <div className="flex items-start justify-between">
                         <div>
