@@ -167,7 +167,7 @@ export default function StockTransferPage() {
                                 </SheetHeader>
                                 <div className="space-y-6 py-6">
                                     <div className="space-y-2">
-                                        <Label htmlFor="searchItem">Search Item (by Name or ID)</Label>
+                                        <Label htmlFor="searchItem">Search Item (by Name or ID) <span className="text-destructive">*</span></Label>
                                         <div className="flex gap-2">
                                             <Input
                                                 id="searchItem"
@@ -211,7 +211,7 @@ export default function StockTransferPage() {
                                     
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label htmlFor="quantity">Transfer Quantity</Label>
+                                            <Label htmlFor="quantity">Transfer Quantity <span className="text-destructive">*</span></Label>
                                             <Input 
                                                 id="quantity" 
                                                 type="number" 
@@ -220,10 +220,11 @@ export default function StockTransferPage() {
                                                 min="1"
                                                 max={selectedItem?.quantity}
                                                 disabled={!selectedItem}
+                                                required
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <Label htmlFor="toLocation">To Hospital</Label>
+                                            <Label htmlFor="toLocation">To Hospital <span className="text-destructive">*</span></Label>
                                             <SearchableSelect
                                                 options={locationOptions}
                                                 value={toLocation}

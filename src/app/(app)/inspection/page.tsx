@@ -217,11 +217,11 @@ export default function InspectionPage() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="itemName" className="text-right">Item</Label>
+                            <Label htmlFor="itemName" className="text-right">Item <span className="text-destructive">*</span></Label>
                             <Input id="itemName" value={newComplaint.itemName} onChange={handleInputChange} className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="batchNumber" className="text-right">Batch No.</Label>
+                            <Label htmlFor="batchNumber" className="text-right">Batch No. <span className="text-destructive">*</span></Label>
                             <Input id="batchNumber" value={newComplaint.batchNumber} onChange={handleInputChange} className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -229,7 +229,7 @@ export default function InspectionPage() {
                             <Input id="vendor" value={newComplaint.vendor} onChange={handleInputChange} className="col-span-3" />
                         </div>
                          <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="issueType" className="text-right">Issue Type</Label>
+                            <Label htmlFor="issueType" className="text-right">Issue Type <span className="text-destructive">*</span></Label>
                             <Select onValueChange={handleSelectChange} value={newComplaint.issueType}>
                                 <SelectTrigger className="col-span-3">
                                 <SelectValue placeholder="Select an issue" />

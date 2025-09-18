@@ -17,6 +17,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 type OrderItem = {
     id: string;
@@ -76,7 +77,7 @@ export default function ReorderSuppliesPage() {
             toast({
                 variant: 'destructive',
                 title: 'Missing Information',
-                description: 'Please select a vendor and add items to the order.',
+                description: 'Please select a vendor and add at least one item to the order.',
             });
             return;
         }
@@ -118,7 +119,7 @@ export default function ReorderSuppliesPage() {
             <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Vendor</label>
+                        <Label>Vendor <span className="text-destructive">*</span></Label>
                         <SearchableSelect 
                             options={vendorOptions}
                             value={selectedVendor}
@@ -127,7 +128,7 @@ export default function ReorderSuppliesPage() {
                         />
                     </div>
                     <div className="space-y-2">
-                         <label className="text-sm font-medium">Expected Delivery Date</label>
+                         <Label>Expected Delivery Date</Label>
                          <Popover>
                             <PopoverTrigger asChild>
                                 <Button
@@ -154,7 +155,7 @@ export default function ReorderSuppliesPage() {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Add Item</label>
+                    <Label>Add Item <span className="text-destructive">*</span></Label>
                     <div className="flex gap-2">
                         <div className="flex-grow">
                              <SearchableSelect 
@@ -209,7 +210,7 @@ export default function ReorderSuppliesPage() {
                     </Table>
                 </div>
                  <div className="space-y-2">
-                    <label htmlFor="notes" className="text-sm font-medium">Remarks / Notes</label>
+                    <Label htmlFor="notes">Remarks / Notes</Label>
                     <Textarea 
                         id="notes" 
                         placeholder="Add any special instructions for this order..." 
@@ -226,4 +227,3 @@ export default function ReorderSuppliesPage() {
         </Card>
     );
 }
-

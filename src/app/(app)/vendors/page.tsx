@@ -190,7 +190,7 @@ export default function VendorsPage() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="vendorName">Vendor Name</Label>
+                                <Label htmlFor="vendorName">Vendor Name <span className="text-destructive">*</span></Label>
                                 <Input id="vendorName" value={newVendor.vendorName} onChange={handleInputChange} />
                             </div>
                             <div className="space-y-2">
@@ -200,7 +200,7 @@ export default function VendorsPage() {
                         </div>
                          <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
                                 <Input id="email" type="email" value={newVendor.email} onChange={handleInputChange} />
                             </div>
                             <div className="space-y-2">

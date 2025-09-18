@@ -49,7 +49,7 @@ export default function DrugInteractionPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="drugName">Drug Name</Label>
+              <Label htmlFor="drugName">Drug Name <span className="text-destructive">*</span></Label>
               <Input
                 id="drugName"
                 name="drugName"
