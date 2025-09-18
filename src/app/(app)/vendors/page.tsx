@@ -43,20 +43,26 @@ export default function VendorsPage() {
     const [vendors, setVendors] = useState<Vendor[]>(mockVendors);
     const [filter, setFilter] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [newVendor, setNewVendor] = useState(initialNewVendorState);
+    const [editingVendor, setEditingVendor] = useState<Vendor | Omit<Vendor, 'vendorId'>>(initialNewVendorState);
     const { toast } = useToast();
+
+    const handleOpenDialog = (vendor?: Vendor) => {
+        setEditingVendor(vendor ? {...vendor} : initialNewVendorState);
+        setIsDialogOpen(true);
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setNewVendor(prev => ({ ...prev, [id]: value }));
+        setEditingVendor(prev => ({ ...prev, [id]: value }));
     };
 
     const handleSelectChange = (id: 'status' | 'paymentTerms', value: string) => {
-        setNewVendor(prev => ({ ...prev, [id]: value }));
+        setEditingVendor(prev => ({ ...prev, [id]: value }));
     };
 
     const handleVendorSubmit = () => {
-        if (!newVendor.vendorName || !newVendor.email) {
+        const isEditing = 'vendorId' in editingVendor;
+        if (!editingVendor.vendorName || !editingVendor.email) {
             toast({
                 variant: 'destructive',
                 title: 'Missing Information',
@@ -65,19 +71,19 @@ export default function VendorsPage() {
             return;
         }
 
-        const newEntry: Vendor = {
-            vendorId: `VEND${String(vendors.length + 1).padStart(3, '0')}`,
-            ...newVendor,
-        };
-
-        setVendors(prev => [newEntry, ...prev]);
+        if (isEditing) {
+            setVendors(prev => prev.map(v => v.vendorId === (editingVendor as Vendor).vendorId ? (editingVendor as Vendor) : v));
+            toast({ title: 'Vendor Updated', description: `"${editingVendor.vendorName}" has been updated.` });
+        } else {
+            const newEntry: Vendor = {
+                vendorId: `VEND${String(vendors.length + 1).padStart(3, '0')}`,
+                ...editingVendor,
+            } as Vendor;
+            setVendors(prev => [newEntry, ...prev]);
+            toast({ title: 'Vendor Added', description: `"${newEntry.vendorName}" has been added.` });
+        }
+        
         setIsDialogOpen(false);
-        setNewVendor(initialNewVendorState);
-
-        toast({
-            title: 'Vendor Added',
-            description: `"${newVendor.vendorName}" has been added to the master list.`,
-        });
     };
 
     const filteredVendors = vendors.filter(v => 
@@ -101,7 +107,7 @@ export default function VendorsPage() {
                         </CardTitle>
                         <CardDescription>Manage your list of suppliers and vendors.</CardDescription>
                     </div>
-                     <Button size="sm" className="h-9 gap-1" onClick={() => setIsDialogOpen(true)}>
+                     <Button size="sm" className="h-9 gap-1" onClick={() => handleOpenDialog()}>
                         <PlusCircle className="h-4 w-4" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Vendor</span>
                     </Button>
@@ -160,7 +166,7 @@ export default function VendorsPage() {
                                                 </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleOpenDialog(vendor)}>Edit</DropdownMenuItem>
                                                     <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
@@ -182,40 +188,40 @@ export default function VendorsPage() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>Add New Vendor</DialogTitle>
+                        <DialogTitle>{'vendorId' in editingVendor ? 'Edit Vendor' : 'Add New Vendor'}</DialogTitle>
                         <DialogDescription>
-                            Fill in the details for the new vendor.
+                            Fill in the details for the vendor.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="vendorName">Vendor Name <span className="text-destructive">*</span></Label>
-                                <Input id="vendorName" value={newVendor.vendorName} onChange={handleInputChange} />
+                                <Input id="vendorName" value={editingVendor.vendorName} onChange={handleInputChange} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="contactPerson">Contact Person</Label>
-                                <Input id="contactPerson" value={newVendor.contactPerson} onChange={handleInputChange} />
+                                <Input id="contactPerson" value={editingVendor.contactPerson} onChange={handleInputChange} />
                             </div>
                         </div>
                          <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="email">Email <span className="text-destructive">*</span></Label>
-                                <Input id="email" type="email" value={newVendor.email} onChange={handleInputChange} />
+                                <Input id="email" type="email" value={editingVendor.email} onChange={handleInputChange} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="phone">Phone</Label>
-                                <Input id="phone" value={newVendor.phone} onChange={handleInputChange} />
+                                <Input id="phone" value={editingVendor.phone} onChange={handleInputChange} />
                             </div>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="address">Address</Label>
-                            <Input id="address" value={newVendor.address} onChange={handleInputChange} />
+                            <Input id="address" value={editingVendor.address} onChange={handleInputChange} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="paymentTerms">Payment Terms</Label>
-                                <Select onValueChange={(v) => handleSelectChange('paymentTerms', v)} value={newVendor.paymentTerms}>
+                                <Select onValueChange={(v) => handleSelectChange('paymentTerms', v)} value={editingVendor.paymentTerms}>
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Net 30">Net 30</SelectItem>
@@ -226,12 +232,12 @@ export default function VendorsPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="deliveryTimeEstimate">Delivery Estimate</Label>
-                                <Input id="deliveryTimeEstimate" placeholder="e.g., 5-7 days" value={newVendor.deliveryTimeEstimate} onChange={handleInputChange} />
+                                <Input id="deliveryTimeEstimate" placeholder="e.g., 5-7 days" value={editingVendor.deliveryTimeEstimate} onChange={handleInputChange} />
                             </div>
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="status">Status</Label>
-                            <Select onValueChange={(v) => handleSelectChange('status', v as 'Active' | 'Inactive')} value={newVendor.status}>
+                            <Select onValueChange={(v) => handleSelectChange('status', v as 'Active' | 'Inactive')} value={editingVendor.status}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Active">Active</SelectItem>
@@ -242,10 +248,12 @@ export default function VendorsPage() {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                        <Button type="submit" onClick={handleVendorSubmit}>Save Vendor</Button>
+                        <Button type="submit" onClick={handleVendorSubmit}>{'vendorId' in editingVendor ? 'Save Changes' : 'Save Vendor'}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
     );
 }
+
+    

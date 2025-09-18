@@ -34,3 +34,19 @@ export type PurchaseOrder = {
   status: "Pending" | "Dispatched" | "Partially Received" | "Completed" | "Cancelled";
   notes?: string;
 };
+
+export type Complaint = {
+  id: string;
+  itemName: string;
+  batchNumber: string;
+  vendor: string;
+  issueType: string;
+  description: string;
+  status: 'Open' | 'In Review' | 'Resolved' | 'Escalated';
+  raisedOn: Date;
+  assignedTo: string;
+  hasAttachment: boolean;
+  resolutionNote?: string;
+};
+
+    

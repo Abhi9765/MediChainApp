@@ -27,9 +27,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 
 type Complaint = (typeof mockComplaints)[0];
+
+type DialogState = {
+    isOpen: boolean;
+    complaintId?: string;
+    mode: 'assign' | 'resolve' | 'details';
+};
 
 const initialNewComplaintState = {
     itemName: '',
@@ -43,8 +50,10 @@ const initialNewComplaintState = {
 export default function InspectionPage() {
     const [complaints, setComplaints] = useState<Complaint[]>(mockComplaints);
     const [filter, setFilter] = useState("");
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isNewComplaintOpen, setIsNewComplaintOpen] = useState(false);
     const [newComplaint, setNewComplaint] = useState(initialNewComplaintState);
+    const [actionDialog, setActionDialog] = useState<DialogState>({ isOpen: false, mode: 'details' });
+    const [dialogInput, setDialogInput] = useState('');
     const { toast } = useToast();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -82,13 +91,31 @@ export default function InspectionPage() {
         };
 
         setComplaints(prev => [newEntry, ...prev]);
-        setIsDialogOpen(false);
+        setIsNewComplaintOpen(false);
         setNewComplaint(initialNewComplaintState);
 
         toast({
             title: 'Complaint Raised',
             description: `Issue for "${newComplaint.itemName}" has been logged.`,
         });
+    };
+
+    const handleDialogSubmit = () => {
+        if (!actionDialog.complaintId || !dialogInput) {
+            toast({ variant: 'destructive', title: 'Input required.'});
+            return;
+        }
+
+        if (actionDialog.mode === 'assign') {
+            setComplaints(prev => prev.map(c => c.id === actionDialog.complaintId ? {...c, assignedTo: dialogInput, status: 'In Review'} : c));
+            toast({ title: 'Complaint Assigned', description: `Assigned to ${dialogInput}.` });
+        } else if (actionDialog.mode === 'resolve') {
+            setComplaints(prev => prev.map(c => c.id === actionDialog.complaintId ? {...c, status: 'Resolved', resolutionNote: dialogInput} : c));
+            toast({ title: 'Complaint Resolved', description: 'The complaint has been marked as resolved.' });
+        }
+
+        setActionDialog({ isOpen: false, mode: 'details' });
+        setDialogInput('');
     };
 
     const filteredComplaints = complaints.filter(c => 
@@ -111,6 +138,58 @@ export default function InspectionPage() {
                 return "outline";
         }
     };
+    
+    const openActionDialog = (complaintId: string, mode: DialogState['mode']) => {
+        setActionDialog({ isOpen: true, complaintId, mode });
+    };
+
+    const selectedComplaint = complaints.find(c => c.id === actionDialog.complaintId);
+    
+    const getDialogContent = () => {
+        if (!selectedComplaint) return null;
+
+        switch (actionDialog.mode) {
+            case 'details':
+                return {
+                    title: 'Complaint Details',
+                    description: `Details for complaint #${selectedComplaint.id}.`,
+                    body: (
+                        <div className="space-y-4 text-sm">
+                           <p><strong>Item:</strong> {selectedComplaint.itemName} (Batch: {selectedComplaint.batchNumber})</p>
+                           <p><strong>Vendor:</strong> {selectedComplaint.vendor}</p>
+                           <p><strong>Issue:</strong> {selectedComplaint.issueType}</p>
+                           <p><strong>Description:</strong> {selectedComplaint.description}</p>
+                           {selectedComplaint.resolutionNote && <p><strong>Resolution Note:</strong> {selectedComplaint.resolutionNote}</p>}
+                        </div>
+                    ),
+                    footer: <Button variant="outline" onClick={() => setActionDialog({isOpen: false, mode: 'details'})}>Close</Button>
+                };
+            case 'assign':
+                return {
+                    title: 'Assign Complaint',
+                    description: 'Assign this complaint to a staff member for review.',
+                    body: (
+                        <>
+                            <Label htmlFor="assignee">Staff Name</Label>
+                            <Input id="assignee" value={dialogInput} onChange={e => setDialogInput(e.target.value)} placeholder="e.g., John Doe" />
+                        </>
+                    ),
+                    footer: <><Button variant="outline" onClick={() => setActionDialog({isOpen: false, mode: 'details'})}>Cancel</Button><Button onClick={handleDialogSubmit}>Assign</Button></>
+                };
+            case 'resolve':
+                 return {
+                    title: 'Add Resolution Note',
+                    description: 'Add a final note and mark this complaint as resolved.',
+                    body: (
+                        <>
+                            <Label htmlFor="resolution">Resolution Note</Label>
+                            <Textarea id="resolution" value={dialogInput} onChange={e => setDialogInput(e.target.value)} placeholder="Describe the resolution..." />
+                        </>
+                    ),
+                    footer: <><Button variant="outline" onClick={() => setActionDialog({-isOpen: false, mode: 'details'})}>Cancel</Button><Button onClick={handleDialogSubmit}>Resolve</Button></>
+                };
+        }
+    }
 
     return (
         <div className="flex flex-col gap-6 h-full">
@@ -123,7 +202,7 @@ export default function InspectionPage() {
                         </CardTitle>
                         <CardDescription>Raise and track issues with received materials.</CardDescription>
                     </div>
-                     <Button size="sm" className="h-9 gap-1" onClick={() => setIsDialogOpen(true)}>
+                     <Button size="sm" className="h-9 gap-1" onClick={() => setIsNewComplaintOpen(true)}>
                         <PlusCircle className="h-4 w-4" />
                         <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Raise Complaint</span>
                     </Button>
@@ -187,9 +266,9 @@ export default function InspectionPage() {
                                                 </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                                                    <DropdownMenuItem>Assign Staff</DropdownMenuItem>
-                                                    <DropdownMenuItem>Add Resolution Note</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openActionDialog(complaint.id, 'details')}>View Details</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openActionDialog(complaint.id, 'assign')}>Assign Staff</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openActionDialog(complaint.id, 'resolve')}>Add Resolution Note</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -207,7 +286,7 @@ export default function InspectionPage() {
                 </CardContent>
             </Card>
 
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isNewComplaintOpen} onOpenChange={setIsNewComplaintOpen}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
                         <DialogTitle>Raise a New Complaint</DialogTitle>
@@ -260,11 +339,28 @@ export default function InspectionPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setIsNewComplaintOpen(false)}>Cancel</Button>
                         <Button type="submit" onClick={handleComplaintSubmit}>Submit Complaint</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={actionDialog.isOpen} onOpenChange={(isOpen) => setActionDialog(prev => ({...prev, isOpen}))}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{getDialogContent()?.title}</DialogTitle>
+                        <DialogDescription>{getDialogContent()?.description}</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        {getDialogContent()?.body}
+                    </div>
+                    <DialogFooter>
+                        {getDialogContent()?.footer}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
     );
 }
+
+    

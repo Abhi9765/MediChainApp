@@ -1,4 +1,4 @@
-import type { InventoryItem, PurchaseOrder, Vendor } from "@/types";
+import type { Complaint, InventoryItem, PurchaseOrder, Vendor } from "@/types";
 
 export const mockInventory: InventoryItem[] = [
   {
@@ -175,7 +175,7 @@ export const mockTransfers: Transfer[] = [
   },
 ];
 
-export const mockComplaints = [
+export const mockComplaints: Complaint[] = [
   {
     id: 'CMP001',
     itemName: 'Paracetamol 500mg',
@@ -208,6 +208,7 @@ export const mockComplaints = [
     issueType: 'Expired',
     description: 'Received items that were already expired.',
     status: 'Resolved',
+    resolutionNote: 'Vendor agreed to replace the expired batch. New stock expected next week.',
     raisedOn: new Date(new Date().setDate(new Date().getDate() - 10)),
     assignedTo: 'Jane Smith',
     hasAttachment: true,
@@ -311,3 +312,5 @@ export const mockPurchaseOrders: PurchaseOrder[] = [
         status: "Pending"
     }
 ];
+
+    
