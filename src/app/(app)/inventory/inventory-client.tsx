@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, QrCode, Search } from "lucide-react";
+import { MoreHorizontal, PlusCircle, QrCode, Search, Upload } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,19 +26,101 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { InventoryItem } from "@/types";
-import { format, isBefore } from "date-fns";
+import { format, isBefore, parseISO } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import Papa from "papaparse";
 
-export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
+export function InventoryPageClient({ data: initialData }: { data: InventoryItem[] }) {
+  const [inventoryData, setInventoryData] = React.useState<InventoryItem[]>(initialData);
   const [filter, setFilter] = React.useState("");
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isAddItemDialogOpen, setIsAddItemDialogOpen] = React.useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState('');
+  const { toast } = useToast();
 
-  const filteredData = data.filter(
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    Papa.parse<any>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const requiredFields = ["name", "category", "quantity", "expiryDate", "manufacturer", "batchNumber", "location"];
+        const headers = results.meta.fields || [];
+        const missingHeaders = requiredFields.filter(h => !headers.includes(h));
+
+        if (missingHeaders.length > 0) {
+            toast({
+                variant: 'destructive',
+                title: "CSV Import Error",
+                description: `Missing required columns: ${missingHeaders.join(', ')}`,
+            });
+            return;
+        }
+        
+        const newItems: InventoryItem[] = [];
+        let errorOccurred = false;
+
+        results.data.forEach((row, index) => {
+          if(errorOccurred) return;
+          
+          if (!row.name || !row.category || !row.quantity || !row.expiryDate) {
+             toast({
+                variant: 'destructive',
+                title: `Row ${index + 2} skipped`,
+                description: `Missing required data in row.`,
+             });
+             return;
+          }
+
+          const newItem: InventoryItem = {
+            id: `ITM${String(inventoryData.length + newItems.length + 1).padStart(3, '0')}`,
+            name: row.name,
+            category: row.category as InventoryItem['category'],
+            quantity: parseInt(row.quantity, 10),
+            expiryDate: parseISO(row.expiryDate),
+            manufacturer: row.manufacturer,
+            batchNumber: row.batchNumber,
+            location: row.location,
+          };
+
+          if (isNaN(newItem.quantity) || isNaN(newItem.expiryDate.getTime())) {
+              toast({
+                  variant: 'destructive',
+                  title: `CSV Import Error on row ${index + 2}`,
+                  description: `Invalid quantity or date format for item "${row.name}".`,
+              });
+              errorOccurred = true;
+              return;
+          }
+          newItems.push(newItem);
+        });
+
+        if (!errorOccurred) {
+            setInventoryData(prev => [...prev, ...newItems]);
+            toast({
+                title: "Import Successful",
+                description: `${newItems.length} items have been added to the inventory.`,
+            });
+            setIsImportDialogOpen(false);
+        }
+      },
+      error: (error) => {
+          toast({
+              variant: 'destructive',
+              title: "CSV Parsing Error",
+              description: error.message,
+          });
+      }
+    });
+  };
+
+  const filteredData = inventoryData.filter(
     (item) =>
       item.name.toLowerCase().includes(filter.toLowerCase()) ||
       item.id.toLowerCase().includes(filter.toLowerCase()) ||
@@ -67,11 +149,11 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
     return format(expiryDate, "MMM yyyy");
   };
 
-    const categoryOptions = [
-        { value: "medicines", label: "Medicines" },
-        { value: "consumables", label: "Consumables" },
-        { value: "surgical", label: "Surgical" }
-    ];
+  const categoryOptions = [
+      { value: "Medicines", label: "Medicines" },
+      { value: "Consumables", label: "Consumables" },
+      { value: "Surgical", label: "Surgical" }
+  ];
 
   return (
     <div className="flex flex-col h-full">
@@ -87,11 +169,11 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
           />
         </div>
         <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="h-9 gap-1 md:hidden" onClick={() => setIsDialogOpen(true)}>
-                <QrCode className="h-4 w-4" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Scan QR</span>
+            <Button size="sm" variant="outline" className="h-9 gap-1" onClick={() => setIsImportDialogOpen(true)}>
+                <Upload className="h-4 w-4" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Import CSV</span>
             </Button>
-            <Button size="sm" className="h-9 gap-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} onClick={() => setIsDialogOpen(true)}>
+            <Button size="sm" className="h-9 gap-1" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} onClick={() => setIsAddItemDialogOpen(true)}>
                 <PlusCircle className="h-4 w-4" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">Add Item</span>
             </Button>
@@ -138,7 +220,7 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setIsAddItemDialogOpen(true)}>Edit</DropdownMenuItem>
                         <DropdownMenuItem>Transfer</DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive">
                           Remove
@@ -152,7 +234,7 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
           </Table>
         </div>
       </div>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isAddItemDialogOpen} onOpenChange={setIsAddItemDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Add New Item</DialogTitle>
@@ -162,11 +244,11 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Name</Label>
+              <Label htmlFor="name" className="text-right">Name <span className="text-destructive">*</span></Label>
               <Input id="name" defaultValue="Paracetamol 500mg" className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="category" className="text-right">Category</Label>
+              <Label htmlFor="category" className="text-right">Category <span className="text-destructive">*</span></Label>
               <div className="col-span-3">
                 <SearchableSelect
                     options={categoryOptions}
@@ -177,14 +259,39 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="quantity" className="text-right">Quantity</Label>
+              <Label htmlFor="quantity" className="text-right">Quantity <span className="text-destructive">*</span></Label>
               <Input id="quantity" type="number" defaultValue="100" className="col-span-3" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} onClick={() => setIsDialogOpen(false)}>Save Item</Button>
+            <Button variant="outline" onClick={() => setIsAddItemDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" style={{ backgroundColor: 'hsl(var(--accent))', color: 'hsl(var(--accent-foreground))' }} onClick={() => setIsAddItemDialogOpen(false)}>Save Item</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Import from CSV</DialogTitle>
+                <DialogDescription>
+                    Upload a CSV file to bulk-add items to the inventory.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+                <div className="text-sm p-3 bg-muted rounded-md">
+                    <p className="font-semibold">CSV Format Instructions:</p>
+                    <p>Your file must contain the following headers:</p>
+                    <code className="text-xs font-mono">name, category, quantity, expiryDate, manufacturer, batchNumber, location</code>
+                    <p className="mt-2">The <code className="text-xs">expiryDate</code> must be in <code className="text-xs">YYYY-MM-DD</code> format.</p>
+                </div>
+                <div>
+                     <Label htmlFor="csv-file" className="sr-only">CSV file</Label>
+                     <Input id="csv-file" type="file" accept=".csv" onChange={handleFileImport} />
+                </div>
+            </div>
+             <DialogFooter>
+                <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>Close</Button>
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
