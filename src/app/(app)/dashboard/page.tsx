@@ -1,31 +1,16 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Pie, PieChart, Tooltip } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
-import { ArrowDown, ArrowUp, PackageOpen, TriangleAlert, FileDown, ArchiveX } from "lucide-react";
+import { ArrowDown, PackageOpen, TriangleAlert, FileDown, ArchiveX } from "lucide-react";
 import type { ChartConfig } from "@/components/ui/chart";
 import { addDays, isBefore, format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
-
-const chartConfig: ChartConfig = {
-  Medicines: {
-    label: "Medicines",
-    color: "hsl(var(--chart-1))",
-  },
-  Consumables: {
-    label: "Consumables",
-    color: "hsl(var(--chart-2))",
-  },
-  Surgical: {
-    label: "Surgical",
-    color: "hsl(var(--chart-3))",
-  },
-};
 
 const pieChartConfig = {
   value: {
@@ -170,67 +155,40 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Stock Levels Overview</CardTitle>
-            <CardDescription>Monthly stock levels by category.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-              <BarChart accessibilityLayer data={mockAnalytics.stockLevel}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <YAxis />
-                <Tooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="Medicines" fill="var(--color-Medicines)" radius={4} />
-                <Bar dataKey="Consumables" fill="var(--color-Consumables)" radius={4} />
-                <Bar dataKey="Surgical" fill="var(--color-Surgical)" radius={4} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+            <CardHeader>
+                <CardTitle>Report Generation</CardTitle>
+                <CardDescription>Download system reports in various formats.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-around gap-4">
+                 <Button variant="outline" className="w-full" onClick={() => handleReportDownload('CSV')}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Download CSV
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => handleReportDownload('PDF')}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Download PDF
+                </Button>
+            </CardContent>
         </Card>
-        <div className="lg:col-span-3 grid gap-4 auto-rows-min">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Report Generation</CardTitle>
-                    <CardDescription>Download system reports in various formats.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-around gap-4">
-                     <Button variant="outline" className="w-full" onClick={() => handleReportDownload('CSV')}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download CSV
-                    </Button>
-                    <Button variant="outline" className="w-full" onClick={() => handleReportDownload('PDF')}>
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Download PDF
-                    </Button>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Wastage by Category</CardTitle>
-                    <CardDescription>Breakdown of expired items in the last quarter.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-1 pb-0 -mt-4">
-                    <ChartContainer
-                        config={pieChartConfig}
-                        className="mx-auto aspect-square max-h-[250px]"
-                    >
-                        <PieChart>
-                            <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                            <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={50} />
-                        </PieChart>
-                    </ChartContainer>
-                </CardContent>
-            </Card>
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Wastage by Category</CardTitle>
+                <CardDescription>Breakdown of expired items in the last quarter.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 pb-0 -mt-4">
+                <ChartContainer
+                    config={pieChartConfig}
+                    className="mx-auto aspect-square max-h-[250px]"
+                >
+                    <PieChart>
+                        <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
+                        <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={50} />
+                    </PieChart>
+                </ChartContainer>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
