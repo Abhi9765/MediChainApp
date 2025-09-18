@@ -1,4 +1,4 @@
-import type { InventoryItem } from "@/types";
+import type { InventoryItem, PurchaseOrder, Vendor } from "@/types";
 
 export const mockInventory: InventoryItem[] = [
   {
@@ -224,4 +224,90 @@ export const mockComplaints = [
     assignedTo: 'Management',
     hasAttachment: true,
   },
+];
+
+export const mockVendors: Vendor[] = [
+    {
+        vendorId: "VEND001",
+        vendorName: "Pharma Inc.",
+        contactPerson: "John Smith",
+        email: "john.smith@pharmainc.com",
+        phone: "123-456-7890",
+        address: "123 Pharma St, Health City, USA",
+        paymentTerms: "Net 30",
+        deliveryTimeEstimate: "5-7 business days",
+        status: "Active"
+    },
+    {
+        vendorId: "VEND002",
+        vendorName: "MediSupply Co.",
+        contactPerson: "Jane Doe",
+        email: "jane.doe@medisupply.com",
+        phone: "987-654-3210",
+        address: "456 Supply Ave, Medville, USA",
+        paymentTerms: "Net 60",
+        deliveryTimeEstimate: "3-5 business days",
+        status: "Active"
+    },
+    {
+        vendorId: "VEND003",
+        vendorName: "SurgiTools",
+        contactPerson: "Peter Jones",
+        email: "peter.jones@surgitools.com",
+        phone: "555-123-4567",
+        address: "789 Surgical Blvd, Curetown, USA",
+        paymentTerms: "COD",
+        deliveryTimeEstimate: "10-14 business days",
+        status: "Inactive"
+    },
+    {
+        vendorId: "VEND004",
+        vendorName: "Global Health",
+        contactPerson: "Susan Williams",
+        email: "susan@globalhealth.com",
+        phone: "555-987-6543",
+        address: "101 Wellness Way, Lifeburg, USA",
+        paymentTerms: "Net 30",
+        deliveryTimeEstimate: "5-7 business days",
+        status: "Active"
+    }
+];
+
+export const mockPurchaseOrders: PurchaseOrder[] = [
+    {
+        poNumber: "PO-2024-0001",
+        vendorId: "VEND001",
+        orderDate: new Date("2024-05-15"),
+        expectedDate: new Date("2024-05-22"),
+        items: [{ itemId: "ITM001", quantity: 500, receivedQuantity: 500 }],
+        status: "Completed",
+        notes: "Urgent restock for cardiology department."
+    },
+    {
+        poNumber: "PO-2024-0002",
+        vendorId: "VEND002",
+        orderDate: new Date("2024-05-18"),
+        expectedDate: new Date("2024-05-24"),
+        items: [{ itemId: "ITM005", quantity: 100, receivedQuantity: 50 }],
+        status: "Partially Received",
+    },
+    {
+        poNumber: "PO-2024-0003",
+        vendorId: "VEND004",
+        orderDate: new Date(),
+        expectedDate: new Date(new Date().setDate(new Date().getDate() + 7)),
+        items: [
+            { itemId: "ITM004", quantity: 200, receivedQuantity: 0 },
+            { itemId: "ITM007", quantity: 100, receivedQuantity: 0 },
+        ],
+        status: "Dispatched",
+        notes: "Standard restock."
+    },
+    {
+        poNumber: "PO-2024-0004",
+        vendorId: "VEND001",
+        orderDate: new Date(),
+        items: [{ itemId: "ITM006", quantity: 1000, receivedQuantity: 0 }],
+        status: "Pending"
+    }
 ];
