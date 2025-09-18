@@ -1,10 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
-import { mockAnalytics } from "@/lib/data";
+import { mockAnalytics, mockInventory } from "@/lib/data";
 import type { ChartConfig } from "@/components/ui/chart";
+import type { InventoryItem } from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const stockLevelConfig: ChartConfig = {
   Medicines: {
@@ -32,13 +35,6 @@ const demandForecastConfig: ChartConfig = {
     }
 }
 
-const consumptionData = [
-  { department: "Cardiology", value: 450 },
-  { department: "ICU", value: 780 },
-  { department: "Surgery OT", value: 1200 },
-  { department: "Pediatrics", value: 320 },
-  { department: "General Ward", value: 950 },
-];
 const consumptionConfig: ChartConfig = {
     value: {
         label: "Items Consumed",
@@ -46,9 +42,69 @@ const consumptionConfig: ChartConfig = {
     }
 }
 
+const generateRandomData = (base: number) => {
+    return Array.from({ length: 6 }, (_, i) => {
+        const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'][i];
+        const actual = Math.floor(base * (1 + (Math.random() - 0.2) * 0.5) * (i + 1) / 3);
+        const forecast = Math.floor(actual * (1 + (Math.random() - 0.5) * 0.2));
+        return { month, actual, forecast };
+    });
+};
+
+const generateConsumptionData = (base: number) => {
+    return [
+        { department: "Cardiology", value: Math.floor(base * Math.random() * 2) },
+        { department: "ICU", value: Math.floor(base * Math.random() * 4) },
+        { department: "Surgery OT", value: Math.floor(base * Math.random() * 5) },
+        { department: "Pediatrics", value: Math.floor(base * Math.random() * 1.5) },
+        { department: "General Ward", value: Math.floor(base * Math.random() * 3) },
+    ].sort((a,b) => b.value - a.value);
+};
+
 export default function AnalyticsPage() {
+    const [selectedItem, setSelectedItem] = useState<InventoryItem | undefined>(mockInventory.find(item => item.name === 'Paracetamol 500mg'));
+    const [demandData, setDemandData] = useState(generateRandomData(150));
+    const [consumptionData, setConsumptionData] = useState(generateConsumptionData(300));
+
+    useEffect(() => {
+        if (selectedItem) {
+            const baseDemand = selectedItem.quantity / 50;
+            const baseConsumption = selectedItem.quantity / 20;
+            setDemandData(generateRandomData(baseDemand));
+            setConsumptionData(generateConsumptionData(baseConsumption));
+        }
+    }, [selectedItem]);
+    
+    const handleItemChange = (itemId: string) => {
+        const item = mockInventory.find(i => i.id === itemId);
+        setSelectedItem(item);
+    }
+
   return (
     <div className="grid gap-6">
+        <Card>
+            <CardHeader className="flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Analytics Dashboard</CardTitle>
+                    <CardDescription>Visualize trends and consumption patterns.</CardDescription>
+                </div>
+                <div className="w-[300px]">
+                     <Select onValueChange={handleItemChange} defaultValue={selectedItem?.id}>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select an item to analyze" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {mockInventory.map(item => (
+                                <SelectItem key={item.id} value={item.id}>
+                                    {item.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </CardHeader>
+        </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>Stock Level Movement</CardTitle>
@@ -80,20 +136,13 @@ export default function AnalyticsPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Demand Forecast</CardTitle>
-                <CardDescription>AI-powered demand forecast for Paracetamol vs actual usage.</CardDescription>
+                <CardDescription>AI-powered demand forecast for {selectedItem?.name || '...'} vs actual usage.</CardDescription>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={demandForecastConfig} className="min-h-[300px] w-full">
                     <LineChart
                         accessibilityLayer
-                        data={[
-                            { month: 'Jan', actual: 450, forecast: 480 },
-                            { month: 'Feb', actual: 520, forecast: 500 },
-                            { month: 'Mar', actual: 600, forecast: 620 },
-                            { month: 'Apr', actual: 580, forecast: 550 },
-                            { month: 'May', actual: 700, forecast: 680 },
-                            { month: 'Jun', actual: 750, forecast: 720 },
-                        ]}
+                        data={demandData}
                         margin={{ left: 12, right: 12 }}
                     >
                         <CartesianGrid vertical={false} />
@@ -109,7 +158,7 @@ export default function AnalyticsPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Consumption by Department</CardTitle>
-                <CardDescription>Total items consumed by each department last month.</CardDescription>
+                <CardDescription>Total {selectedItem?.name || 'items'} consumed by each department last month.</CardDescription>
             </CardHeader>
             <CardContent>
                 <ChartContainer config={consumptionConfig} className="min-h-[300px] w-full">
