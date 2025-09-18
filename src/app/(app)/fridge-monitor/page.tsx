@@ -236,12 +236,15 @@ export default function FridgeMonitorPage() {
                         </div>
                     </div>
                      <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                        <LineChart accessibilityLayer data={fridge.history} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                        <LineChart accessibilityLayer data={fridge.history} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                             <CartesianGrid vertical={false} />
-                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} />
-                            <YAxis yAxisId="left" stroke="var(--color-temperature)" domain={['dataMin - 2', 'dataMax + 2']} />
+                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} label={{ value: "Time", position: "insideBottom", offset: -5 }} />
+                            <YAxis yAxisId="left" stroke="var(--color-temperature)" domain={['dataMin - 2', 'dataMax + 2']} label={{ value: 'Temp (°C)', angle: -90, position: 'insideLeft' }} />
+                            <YAxis yAxisId="right" orientation="right" stroke="var(--color-humidity)" domain={[0, 100]} label={{ value: 'Humidity (%)', angle: 90, position: 'insideRight' }} />
                             <Tooltip content={<ChartTooltipContent />} />
+                            <Legend />
                             <Line yAxisId="left" type="monotone" dataKey="temperature" stroke="var(--color-temperature)" strokeWidth={2} dot={false} />
+                             <Line yAxisId="right" type="monotone" dataKey="humidity" stroke="var(--color-humidity)" strokeWidth={2} dot={false} />
                         </LineChart>
                     </ChartContainer>
                      <div>

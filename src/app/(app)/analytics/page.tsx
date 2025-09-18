@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
@@ -120,9 +120,11 @@ export default function AnalyticsPage() {
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
+                label={{ value: "Month", position: "insideBottom", offset: -5 }}
               />
-              <YAxis />
+              <YAxis label={{ value: "Stock Quantity", angle: -90, position: "insideLeft", offset: 10 }} />
               <Tooltip content={<ChartTooltipContent />} />
+              <Legend />
               <Bar dataKey="Medicines" stackId="a" fill="var(--color-Medicines)" radius={[0, 0, 4, 4]} maxBarSize={50} />
               <Bar dataKey="Consumables" stackId="a" fill="var(--color-Consumables)" radius={[0, 0, 4, 4]} maxBarSize={50} />
               <Bar dataKey="Surgical" stackId="a" fill="var(--color-Surgical)" radius={[4, 4, 0, 0]} maxBarSize={50} />
@@ -145,9 +147,10 @@ export default function AnalyticsPage() {
                         margin={{ left: 12, right: 12 }}
                     >
                         <CartesianGrid vertical={false} />
-                        <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
-                        <YAxis />
+                        <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} label={{ value: "Month", position: "insideBottom", offset: -5 }} />
+                        <YAxis label={{ value: "Usage Quantity", angle: -90, position: "insideLeft", offset: 10 }} />
                         <Tooltip content={<ChartTooltipContent />} />
+                        <Legend />
                         <Line type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={true} />
                         <Line type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} strokeDasharray="3 3" dot={false} />
                     </LineChart>
@@ -162,9 +165,10 @@ export default function AnalyticsPage() {
             <CardContent>
                 <ChartContainer config={consumptionConfig} className="min-h-[300px] w-full">
                 <BarChart accessibilityLayer data={consumptionData} layout="vertical">
-                    <YAxis dataKey="department" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
-                    <XAxis type="number" dataKey="value" />
+                    <YAxis dataKey="department" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} label={{ value: "Department", angle: -90, position: "insideLeft", offset: -50 }} />
+                    <XAxis type="number" dataKey="value" label={{ value: "Items Consumed", position: "insideBottom", offset: -5 }} />
                     <Tooltip content={<ChartTooltipContent />} />
+                    <Legend />
                     <Bar dataKey="value" layout="vertical" fill="var(--color-value)" radius={4} maxBarSize={30} />
                 </BarChart>
                 </ChartContainer>
