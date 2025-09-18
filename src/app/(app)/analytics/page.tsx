@@ -123,9 +123,9 @@ export default function AnalyticsPage() {
               />
               <YAxis />
               <Tooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="Medicines" stackId="a" fill="var(--color-Medicines)" radius={[0, 0, 4, 4]} />
-              <Bar dataKey="Consumables" stackId="a" fill="var(--color-Consumables)" radius={[0, 0, 4, 4]} />
-              <Bar dataKey="Surgical" stackId="a" fill="var(--color-Surgical)" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Medicines" stackId="a" fill="var(--color-Medicines)" radius={[0, 0, 4, 4]} maxBarSize={50} />
+              <Bar dataKey="Consumables" stackId="a" fill="var(--color-Consumables)" radius={[0, 0, 4, 4]} maxBarSize={50} />
+              <Bar dataKey="Surgical" stackId="a" fill="var(--color-Surgical)" radius={[4, 4, 0, 0]} maxBarSize={50} />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -165,7 +165,7 @@ export default function AnalyticsPage() {
                     <YAxis dataKey="department" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
                     <XAxis type="number" dataKey="value" />
                     <Tooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="value" layout="vertical" fill="var(--color-value)" radius={4} />
+                    <Bar dataKey="value" layout="vertical" fill="var(--color-value)" radius={4} maxBarSize={30} />
                 </BarChart>
                 </ChartContainer>
             </CardContent>
