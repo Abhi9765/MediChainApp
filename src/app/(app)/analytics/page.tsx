@@ -7,7 +7,7 @@ import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
 import type { ChartConfig } from "@/components/ui/chart";
 import type { InventoryItem } from "@/types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 const stockLevelConfig: ChartConfig = {
   Medicines: {
@@ -79,6 +79,11 @@ export default function AnalyticsPage() {
         const item = mockInventory.find(i => i.id === itemId);
         setSelectedItem(item);
     }
+    
+    const itemOptions = mockInventory.map(item => ({
+        value: item.id,
+        label: item.name
+    }));
 
   return (
     <div className="grid gap-6">
@@ -89,18 +94,12 @@ export default function AnalyticsPage() {
                     <CardDescription>Visualize trends and consumption patterns.</CardDescription>
                 </div>
                 <div className="w-[300px]">
-                     <Select onValueChange={handleItemChange} defaultValue={selectedItem?.id}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select an item to analyze" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {mockInventory.map(item => (
-                                <SelectItem key={item.id} value={item.id}>
-                                    {item.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                    <SearchableSelect
+                        options={itemOptions}
+                        value={selectedItem?.id || ''}
+                        onValueChange={handleItemChange}
+                        placeholder="Select an item to analyze"
+                    />
                 </div>
             </CardHeader>
         </Card>

@@ -29,19 +29,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import type { InventoryItem } from "@/types";
 import { format, isBefore } from "date-fns";
 
 export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
   const [filter, setFilter] = React.useState("");
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [selectedCategory, setSelectedCategory] = React.useState('');
 
   const filteredData = data.filter(
     (item) =>
@@ -71,6 +66,12 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
     }
     return format(expiryDate, "MMM yyyy");
   };
+
+    const categoryOptions = [
+        { value: "medicines", label: "Medicines" },
+        { value: "consumables", label: "Consumables" },
+        { value: "surgical", label: "Surgical" }
+    ];
 
   return (
     <div className="flex flex-col h-full">
@@ -166,16 +167,14 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">Category</Label>
-              <Select>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="medicines">Medicines</SelectItem>
-                  <SelectItem value="consumables">Consumables</SelectItem>
-                  <SelectItem value="surgical">Surgical</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="col-span-3">
+                <SearchableSelect
+                    options={categoryOptions}
+                    value={selectedCategory}
+                    onValueChange={setSelectedCategory}
+                    placeholder="Select a category"
+                />
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="quantity" className="text-right">Quantity</Label>

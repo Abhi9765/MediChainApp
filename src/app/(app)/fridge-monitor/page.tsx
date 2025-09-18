@@ -6,6 +6,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Thermometer, Droplets, AlertTriangle, History, CalendarDays, Server, Package } from "lucide-react";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { InventoryItem } from "@/types";
@@ -159,6 +160,14 @@ export default function FridgeMonitorPage() {
   const fridgesToShow = selectedFridge === 'all' 
     ? fridgeData 
     : fridgeData.filter(f => f.id === selectedFridge);
+  
+  const fridgeOptions = [
+    { value: "all", label: "All Fridges" },
+    ...fridgeData.map(fridge => ({
+        value: fridge.id,
+        label: fridge.location
+    }))
+  ];
 
   return (
     <div className="flex flex-col gap-6">
@@ -174,17 +183,14 @@ export default function FridgeMonitorPage() {
             <div className="flex items-center gap-4">
                  <div className="flex items-center gap-2">
                     <Server className="h-5 w-5 text-muted-foreground"/>
-                    <Select onValueChange={setSelectedFridge} value={selectedFridge}>
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select Fridge" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Fridges</SelectItem>
-                            {fridgeData.map(fridge => (
-                                <SelectItem key={fridge.id} value={fridge.id}>{fridge.location}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                     <div className="w-[200px]">
+                        <SearchableSelect
+                            options={fridgeOptions}
+                            value={selectedFridge}
+                            onValueChange={setSelectedFridge}
+                            placeholder="Select Fridge"
+                        />
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <CalendarDays className="h-5 w-5 text-muted-foreground"/>

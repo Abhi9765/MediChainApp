@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Truck, Search, Loader2 } from "lucide-react";
 import { mockInventory, mockTransfers } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
@@ -106,6 +106,10 @@ export default function StockTransferPage() {
     }
 
     const availableLocations = ["North Branch Clinic", "Southside Medical Center", "East Wing Hospital", "West End Health Hub", "Downtown Urgent Care"];
+    
+    const locationOptions = availableLocations
+        .filter(loc => loc !== selectedItem?.location)
+        .map(loc => ({ value: loc, label: loc }));
 
     const getStatusVariant = (status: Transfer['status']) => {
         switch(status) {
@@ -188,19 +192,13 @@ export default function StockTransferPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="toLocation">Hospital Name</Label>
-                                <Select onValueChange={setToLocation} value={toLocation} disabled={!selectedItem}>
-                                    <SelectTrigger id="toLocation">
-                                        <SelectValue placeholder="Select destination hospital" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableLocations
-                                            .filter(loc => loc !== selectedItem?.location)
-                                            .map(loc => (
-                                                <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                                            ))
-                                        }
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={locationOptions}
+                                    value={toLocation}
+                                    onValueChange={setToLocation}
+                                    placeholder="Select destination hospital"
+                                    disabled={!selectedItem}
+                                />
                             </div>
                         </div>
                     </CardContent>
