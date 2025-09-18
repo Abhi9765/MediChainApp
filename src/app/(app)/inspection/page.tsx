@@ -113,7 +113,7 @@ export default function InspectionPage() {
     };
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 h-full">
             <Card>
                 <CardHeader className="flex-row items-center justify-between">
                     <div>
@@ -142,12 +142,12 @@ export default function InspectionPage() {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="flex-grow flex flex-col">
                 <CardHeader>
                     <CardTitle>Complaint Log</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="border rounded-lg overflow-hidden">
+                <CardContent className="flex-grow overflow-hidden">
+                    <div className="border rounded-lg overflow-y-auto h-full">
                         <Table>
                             <TableHeader>
                                 <TableRow>

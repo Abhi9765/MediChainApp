@@ -97,59 +97,59 @@ export function InventoryPageClient({ data }: { data: InventoryItem[] }) {
             </Button>
         </div>
       </div>
-      <div className="border rounded-lg overflow-hidden flex-grow">
-        <div className="relative w-full overflow-auto h-full">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Item ID</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead className="text-right">Quantity</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Expiry</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredData.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.id}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{item.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    Batch: {item.batchNumber}
-                  </div>
-                </TableCell>
-                <TableCell>{item.category}</TableCell>
-                <TableCell className="text-right">{item.quantity}</TableCell>
-                <TableCell>{item.location}</TableCell>
-                <TableCell>
-                  <Badge variant={getBadgeVariant(item.expiryDate)}>
-                    {getBadgeText(item.expiryDate)}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <span className="sr-only">Open menu</span>
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Transfer</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">
-                        Remove
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+      <div className="border rounded-lg overflow-hidden flex-grow relative">
+        <div className="absolute inset-0 overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Item ID</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead className="text-right">Quantity</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Expiry</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.id}</TableCell>
+                  <TableCell>
+                    <div className="font-medium">{item.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Batch: {item.batchNumber}
+                    </div>
+                  </TableCell>
+                  <TableCell>{item.category}</TableCell>
+                  <TableCell className="text-right">{item.quantity}</TableCell>
+                  <TableCell>{item.location}</TableCell>
+                  <TableCell>
+                    <Badge variant={getBadgeVariant(item.expiryDate)}>
+                      {getBadgeText(item.expiryDate)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Open menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem>Transfer</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive">
+                          Remove
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

@@ -138,8 +138,8 @@ export default function StockTransferPage() {
     }
 
     return (
-        <div className="grid gap-6">
-            <Card>
+        <div className="grid gap-6 h-full">
+            <Card className="flex flex-col h-full">
                  <CardHeader className="flex-row items-center justify-between">
                     <div>
                         <CardTitle className="flex items-center gap-2">
@@ -247,8 +247,8 @@ export default function StockTransferPage() {
                         </SheetContent>
                     </Sheet>
                 </CardHeader>
-                <CardContent>
-                    <div className="border rounded-lg overflow-hidden">
+                <CardContent className="flex-grow overflow-hidden">
+                    <div className="border rounded-lg overflow-y-auto h-full">
                         <Table>
                         <TableHeader>
                             <TableRow>

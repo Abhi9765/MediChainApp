@@ -57,7 +57,7 @@ export default function PurchaseOrdersPage() {
         const data = status ? filteredOrders.filter(o => o.status === status) : filteredOrders;
         
         return (
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-y-auto h-full">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -112,7 +112,7 @@ export default function PurchaseOrdersPage() {
     };
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 h-full">
             <Card>
                 <CardHeader>
                      <CardTitle className="flex items-center gap-2">
@@ -135,7 +135,7 @@ export default function PurchaseOrdersPage() {
                 </CardContent>
             </Card>
 
-            <Tabs defaultValue="all">
+            <Tabs defaultValue="all" className="flex-grow flex flex-col">
                 <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="all">All</TabsTrigger>
                     <TabsTrigger value="Pending">Pending</TabsTrigger>
@@ -143,11 +143,11 @@ export default function PurchaseOrdersPage() {
                     <TabsTrigger value="Partially Received">Partial</TabsTrigger>
                     <TabsTrigger value="Completed">Completed</TabsTrigger>
                 </TabsList>
-                <TabsContent value="all">{renderTable()}</TabsContent>
-                <TabsContent value="Pending">{renderTable("Pending")}</TabsContent>
-                <TabsContent value="Dispatched">{renderTable("Dispatched")}</TabsContent>
-                <TabsContent value="Partially Received">{renderTable("Partially Received")}</TabsContent>
-                <TabsContent value="Completed">{renderTable("Completed")}</TabsContent>
+                <TabsContent value="all" className="flex-grow overflow-hidden">{renderTable()}</TabsContent>
+                <TabsContent value="Pending" className="flex-grow overflow-hidden">{renderTable("Pending")}</TabsContent>
+                <TabsContent value="Dispatched" className="flex-grow overflow-hidden">{renderTable("Dispatched")}</TabsContent>
+                <TabsContent value="Partially Received" className="flex-grow overflow-hidden">{renderTable("Partially Received")}</TabsContent>
+                <TabsContent value="Completed" className="flex-grow overflow-hidden">{renderTable("Completed")}</TabsContent>
             </Tabs>
         </div>
     );
