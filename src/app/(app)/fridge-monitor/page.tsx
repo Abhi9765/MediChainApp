@@ -242,7 +242,7 @@ export default function FridgeMonitorPage() {
                             <YAxis yAxisId="left" stroke="var(--color-temperature)" domain={['dataMin - 2', 'dataMax + 2']} label={{ value: 'Temp (°C)', angle: -90, position: 'insideLeft' }} />
                             <YAxis yAxisId="right" orientation="right" stroke="var(--color-humidity)" domain={[0, 100]} label={{ value: 'Humidity (%)', angle: 90, position: 'insideRight' }} />
                             <Tooltip content={<ChartTooltipContent />} />
-                            <Legend />
+                            <Legend wrapperStyle={{ paddingTop: '20px' }} />
                             <Line yAxisId="left" type="monotone" dataKey="temperature" stroke="var(--color-temperature)" strokeWidth={2} dot={false} />
                              <Line yAxisId="right" type="monotone" dataKey="humidity" stroke="var(--color-humidity)" strokeWidth={2} dot={false} />
                         </LineChart>

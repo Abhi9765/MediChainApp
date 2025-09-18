@@ -1,6 +1,6 @@
 "use client";
 
-import { Legend, Pie, PieChart, Tooltip } from "recharts";
+import { Legend, Pie, PieChart } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { mockAnalytics, mockInventory } from "@/lib/data";
@@ -183,8 +183,8 @@ export default function DashboardPage() {
                     className="mx-auto aspect-square max-h-[250px]"
                 >
                     <PieChart>
-                        <Tooltip content={<ChartTooltipContent nameKey="name" hideLabel />} />
-                        <Legend />
+                        <ChartTooltipContent nameKey="name" hideLabel />
+                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
                         <Pie data={mockAnalytics.wastage} dataKey="value" nameKey="name" innerRadius={50} />
                     </PieChart>
                 </ChartContainer>

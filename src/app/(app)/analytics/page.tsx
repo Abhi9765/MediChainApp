@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
               />
               <YAxis label={{ value: "Stock Quantity", angle: -90, position: "insideLeft", offset: 10 }} />
               <Tooltip content={<ChartTooltipContent />} />
-              <Legend />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} />
               <Bar dataKey="Medicines" stackId="a" fill="var(--color-Medicines)" radius={[0, 0, 4, 4]} maxBarSize={50} />
               <Bar dataKey="Consumables" stackId="a" fill="var(--color-Consumables)" radius={[0, 0, 4, 4]} maxBarSize={50} />
               <Bar dataKey="Surgical" stackId="a" fill="var(--color-Surgical)" radius={[4, 4, 0, 0]} maxBarSize={50} />
@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
                         <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} label={{ value: "Month", position: "insideBottom", offset: -5 }} />
                         <YAxis label={{ value: "Usage Quantity", angle: -90, position: "insideLeft", offset: 10 }} />
                         <Tooltip content={<ChartTooltipContent />} />
-                        <Legend />
+                        <Legend wrapperStyle={{ paddingTop: '20px' }} />
                         <Line type="monotone" dataKey="actual" stroke="var(--color-actual)" strokeWidth={2} dot={true} />
                         <Line type="monotone" dataKey="forecast" stroke="var(--color-forecast)" strokeWidth={2} strokeDasharray="3 3" dot={false} />
                     </LineChart>
@@ -168,7 +168,7 @@ export default function AnalyticsPage() {
                     <YAxis dataKey="department" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} label={{ value: "Department", angle: -90, position: "insideLeft", offset: -50 }} />
                     <XAxis type="number" dataKey="value" label={{ value: "Items Consumed", position: "insideBottom", offset: -5 }} />
                     <Tooltip content={<ChartTooltipContent />} />
-                    <Legend />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Bar dataKey="value" layout="vertical" fill="var(--color-value)" radius={4} maxBarSize={30} />
                 </BarChart>
                 </ChartContainer>
