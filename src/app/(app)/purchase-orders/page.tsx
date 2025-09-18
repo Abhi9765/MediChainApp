@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from 'react';
@@ -18,11 +19,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DataTablePagination } from '@/components/ui/pagination';
 
 
 export default function PurchaseOrdersPage() {
     const [orders, setOrders] = useState<PurchaseOrder[]>(mockPurchaseOrders);
     const [filter, setFilter] = useState("");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [activeTab, setActiveTab] = useState('all');
+
 
     const getVendorName = (vendorId: string) => {
         return mockVendors.find(v => v.vendorId === vendorId)?.vendorName || 'Unknown';
@@ -55,61 +61,76 @@ export default function PurchaseOrdersPage() {
     
     const renderTable = (status?: PurchaseOrder['status']) => {
         const data = status ? filteredOrders.filter(o => o.status === status) : filteredOrders;
+        const paginatedData = data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
         
         return (
-            <div className="border rounded-lg overflow-y-auto h-full">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>PO Number</TableHead>
-                            <TableHead>Vendor</TableHead>
-                            <TableHead>Order Date</TableHead>
-                            <TableHead>Expected Date</TableHead>
-                            <TableHead className="text-center">Items</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data.length > 0 ? data.map(order => (
-                            <TableRow key={order.poNumber}>
-                                <TableCell className="font-medium">{order.poNumber}</TableCell>
-                                <TableCell>{getVendorName(order.vendorId)}</TableCell>
-                                <TableCell>{format(order.orderDate, "dd MMM yyyy")}</TableCell>
-                                <TableCell>{order.expectedDate ? format(order.expectedDate, "dd MMM yyyy") : 'N/A'}</TableCell>
-                                <TableCell className="text-center">{getTotalItems(order.items)}</TableCell>
-                                <TableCell>
-                                    <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Open menu</span>
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                                            <DropdownMenuItem>Update Status</DropdownMenuItem>
-                                            <DropdownMenuItem>Receive Stock</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-destructive">Cancel Order</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        )) : (
+            <div className='flex flex-col h-full'>
+                <div className="border rounded-lg overflow-y-auto flex-grow">
+                    <Table>
+                        <TableHeader>
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
-                                    No orders found.
-                                </TableCell>
+                                <TableHead>PO Number</TableHead>
+                                <TableHead>Vendor</TableHead>
+                                <TableHead>Order Date</TableHead>
+                                <TableHead>Expected Date</TableHead>
+                                <TableHead className="text-center">Items</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Actions</TableHead>
                             </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {paginatedData.length > 0 ? paginatedData.map(order => (
+                                <TableRow key={order.poNumber}>
+                                    <TableCell className="font-medium">{order.poNumber}</TableCell>
+                                    <TableCell>{getVendorName(order.vendorId)}</TableCell>
+                                    <TableCell>{format(order.orderDate, "dd MMM yyyy")}</TableCell>
+                                    <TableCell>{order.expectedDate ? format(order.expectedDate, "dd MMM yyyy") : 'N/A'}</TableCell>
+                                    <TableCell className="text-center">{getTotalItems(order.items)}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <span className="sr-only">Open menu</span>
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>View Details</DropdownMenuItem>
+                                                <DropdownMenuItem>Update Status</DropdownMenuItem>
+                                                <DropdownMenuItem>Receive Stock</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Cancel Order</DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
+                                        No orders found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                 <DataTablePagination
+                    count={data.length}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={setPage}
+                    onRowsPerPageChange={setRowsPerPage}
+                />
             </div>
         )
     };
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        setPage(0);
+    }
 
     return (
         <div className="flex flex-col gap-6 h-full">
@@ -129,13 +150,16 @@ export default function PurchaseOrdersPage() {
                             placeholder="Search by PO number or vendor name..."
                             className="w-full rounded-lg bg-card pl-8 md:w-[400px]"
                             value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
+                            onChange={(e) => {
+                                setFilter(e.target.value);
+                                setPage(0);
+                            }}
                         />
                     </div>
                 </CardContent>
             </Card>
 
-            <Tabs defaultValue="all" className="flex-grow flex flex-col">
+            <Tabs defaultValue="all" value={activeTab} onValueChange={handleTabChange} className="flex-grow flex flex-col">
                 <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="all">All</TabsTrigger>
                     <TabsTrigger value="Pending">Pending</TabsTrigger>

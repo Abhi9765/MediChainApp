@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from 'react';
@@ -27,6 +28,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DataTablePagination } from '@/components/ui/pagination';
 
 const initialNewVendorState: Omit<Vendor, 'vendorId'> = {
     vendorName: '',
@@ -45,6 +47,8 @@ export default function VendorsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingVendor, setEditingVendor] = useState<Vendor | Omit<Vendor, 'vendorId'>>(initialNewVendorState);
     const { toast } = useToast();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleOpenDialog = (vendor?: Vendor) => {
         setEditingVendor(vendor ? {...vendor} : initialNewVendorState);
@@ -91,6 +95,8 @@ export default function VendorsPage() {
         v.contactPerson.toLowerCase().includes(filter.toLowerCase()) ||
         v.email.toLowerCase().includes(filter.toLowerCase())
     );
+
+    const paginatedVendors = filteredVendors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
     
     const getStatusVariant = (status: Vendor['status']): "default" | "secondary" => {
         return status === 'Active' ? 'default' : 'secondary';
@@ -120,7 +126,10 @@ export default function VendorsPage() {
                             placeholder="Search vendors by name, contact, or email..."
                             className="w-full rounded-lg bg-card pl-8 md:w-[400px]"
                             value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
+                            onChange={(e) => {
+                                setFilter(e.target.value);
+                                setPage(0);
+                            }}
                         />
                     </div>
                 </CardContent>
@@ -130,8 +139,8 @@ export default function VendorsPage() {
                 <CardHeader>
                     <CardTitle>Vendor Master List</CardTitle>
                 </CardHeader>
-                <CardContent className="flex-grow overflow-hidden">
-                    <div className="border rounded-lg overflow-y-auto h-full">
+                <CardContent className="flex-grow overflow-hidden flex flex-col">
+                    <div className="border rounded-lg overflow-y-auto flex-grow">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -143,7 +152,7 @@ export default function VendorsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredVendors.length > 0 ? filteredVendors.map(vendor => (
+                                {paginatedVendors.length > 0 ? paginatedVendors.map(vendor => (
                                     <TableRow key={vendor.vendorId}>
                                         <TableCell>
                                             <div className="font-medium">{vendor.vendorName}</div>
@@ -182,6 +191,13 @@ export default function VendorsPage() {
                             </TableBody>
                         </Table>
                     </div>
+                     <DataTablePagination
+                        count={filteredVendors.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setPage}
+                        onRowsPerPageChange={setRowsPerPage}
+                    />
                 </CardContent>
             </Card>
 

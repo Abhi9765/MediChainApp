@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -30,6 +31,7 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { DataTablePagination } from '@/components/ui/pagination';
 
 type Transfer = {
   id: string;
@@ -50,6 +52,8 @@ export default function StockTransferPage() {
     const [transferQuantity, setTransferQuantity] = useState(1);
     const [toLocation, setToLocation] = useState('');
     const [isSheetOpen, setIsSheetOpen] = useState(false);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     
     const { toast } = useToast();
 
@@ -136,6 +140,11 @@ export default function StockTransferPage() {
             default: return 'default';
         }
     }
+
+    const paginatedTransfers = mockTransfers.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage
+    );
 
     return (
         <div className="grid gap-6 h-full">
@@ -247,8 +256,8 @@ export default function StockTransferPage() {
                         </SheetContent>
                     </Sheet>
                 </CardHeader>
-                <CardContent className="flex-grow overflow-hidden">
-                    <div className="border rounded-lg overflow-y-auto h-full">
+                <CardContent className="flex-grow overflow-hidden flex flex-col">
+                    <div className="border rounded-lg overflow-y-auto flex-grow">
                         <Table>
                         <TableHeader>
                             <TableRow>
@@ -260,7 +269,7 @@ export default function StockTransferPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {mockTransfers.map((transfer) => (
+                            {paginatedTransfers.map((transfer) => (
                             <TableRow key={transfer.id}>
                                 <TableCell>
                                 <div className="font-medium">{transfer.itemName}</div>
@@ -277,6 +286,13 @@ export default function StockTransferPage() {
                         </TableBody>
                         </Table>
                     </div>
+                     <DataTablePagination
+                        count={mockTransfers.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setPage}
+                        onRowsPerPageChange={setRowsPerPage}
+                    />
                 </CardContent>
             </Card>
         </div>

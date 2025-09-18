@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -28,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DataTablePagination } from '@/components/ui/pagination';
 
 
 type Complaint = (typeof mockComplaints)[0];
@@ -55,6 +57,8 @@ export default function InspectionPage() {
     const [actionDialog, setActionDialog] = useState<DialogState>({ isOpen: false, mode: 'details' });
     const [dialogInput, setDialogInput] = useState('');
     const { toast } = useToast();
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
@@ -124,6 +128,9 @@ export default function InspectionPage() {
         c.vendor.toLowerCase().includes(filter.toLowerCase())
     );
 
+    const paginatedComplaints = filteredComplaints.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+
+
     const getStatusVariant = (status: Complaint['status']): "default" | "secondary" | "destructive" | "outline" => {
         switch (status) {
             case "Resolved":
@@ -186,7 +193,7 @@ export default function InspectionPage() {
                             <Textarea id="resolution" value={dialogInput} onChange={e => setDialogInput(e.target.value)} placeholder="Describe the resolution..." />
                         </>
                     ),
-                    footer: <><Button variant="outline" onClick={() => setActionDialog({-isOpen: false, mode: 'details'})}>Cancel</Button><Button onClick={handleDialogSubmit}>Resolve</Button></>
+                    footer: <><Button variant="outline" onClick={() => setActionDialog({isOpen: false, mode: 'details'})}>Cancel</Button><Button onClick={handleDialogSubmit}>Resolve</Button></>
                 };
         }
     }
@@ -225,8 +232,8 @@ export default function InspectionPage() {
                 <CardHeader>
                     <CardTitle>Complaint Log</CardTitle>
                 </CardHeader>
-                <CardContent className="flex-grow overflow-hidden">
-                    <div className="border rounded-lg overflow-y-auto h-full">
+                <CardContent className="flex-grow overflow-hidden flex flex-col">
+                    <div className="border rounded-lg overflow-y-auto flex-grow">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -241,7 +248,7 @@ export default function InspectionPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredComplaints.length > 0 ? filteredComplaints.map(complaint => (
+                                {paginatedComplaints.length > 0 ? paginatedComplaints.map(complaint => (
                                     <TableRow key={complaint.id}>
                                         <TableCell>
                                             <div className="font-medium">{complaint.itemName}</div>
@@ -275,7 +282,7 @@ export default function InspectionPage() {
                                     </TableRow>
                                 )) : (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="text-center text-muted-foreground">
+                                        <TableCell colSpan={8} className="text-center text-muted-foreground h-24">
                                             No complaints found.
                                         </TableCell>
                                     </TableRow>
@@ -283,6 +290,13 @@ export default function InspectionPage() {
                             </TableBody>
                         </Table>
                     </div>
+                     <DataTablePagination
+                        count={filteredComplaints.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={setPage}
+                        onRowsPerPageChange={setRowsPerPage}
+                    />
                 </CardContent>
             </Card>
 

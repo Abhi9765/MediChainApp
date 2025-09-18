@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -38,6 +39,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DataTablePagination } from "@/components/ui/pagination";
 
 const emptyItem: Omit<InventoryItem, 'id'> = {
   name: '',
@@ -56,6 +58,8 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
   const [isImportDialogOpen, setIsImportDialogOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<InventoryItem | Omit<InventoryItem, 'id'>>(emptyItem);
   const { toast } = useToast();
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -141,6 +145,12 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
       item.id.toLowerCase().includes(filter.toLowerCase()) ||
       item.batchNumber.toLowerCase().includes(filter.toLowerCase())
   );
+  
+  const paginatedData = filteredData.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
 
   const getBadgeVariant = (expiryDate: Date) => {
     const now = new Date();
@@ -219,7 +229,10 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
             placeholder="Search by name, ID, or batch..."
             className="w-full rounded-lg bg-card pl-8 md:w-[300px] lg:w-[400px]"
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPage(0);
+            }}
           />
         </div>
         <div className="flex items-center gap-2">
@@ -233,8 +246,8 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
             </Button>
         </div>
       </div>
-      <div className="border rounded-lg overflow-hidden flex-grow relative">
-        <div className="absolute inset-0 overflow-y-auto">
+      <div className="border rounded-lg overflow-hidden flex-grow flex flex-col">
+        <div className="relative flex-grow overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -248,7 +261,7 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.map((item) => (
+              {paginatedData.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.id}</TableCell>
                   <TableCell>
@@ -305,6 +318,13 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
             </TableBody>
           </Table>
         </div>
+         <DataTablePagination
+            count={filteredData.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            onPageChange={setPage}
+            onRowsPerPageChange={setRowsPerPage}
+        />
       </div>
       <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
         <DialogContent className="sm:max-w-lg">
@@ -414,5 +434,3 @@ export function InventoryPageClient({ data: initialData }: { data: InventoryItem
     </div>
   );
 }
-
-    
