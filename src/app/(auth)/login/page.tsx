@@ -18,53 +18,25 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("admin@medichain.com");
+  const [password, setPassword] = useState("password");
   const [errors, setErrors] = useState({ email: "" });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
-  const validateForm = () => {
-    let valid = true;
-    const newErrors = { email: "" };
-
-    if (!email) {
-      newErrors.email = "Email is required.";
-      valid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Email is invalid.";
-      valid = false;
-    }
-
-    setErrors(newErrors);
-    return valid;
-  };
-
   const handleLogin = () => {
-    if (!validateForm()) {
-      return;
-    }
-
     setIsLoading(true);
 
     // Simulate API call
     setTimeout(() => {
       // In a real app, you would authenticate with a backend here.
       // For this demo, we'll just simulate a successful login.
-      if (email === "admin@medichain.com") {
-         toast({
-            title: "Login Successful",
-            description: "Welcome back!",
-        });
-        router.push("/dashboard");
-      } else {
-         toast({
-            variant: "destructive",
-            title: "Login Failed",
-            description: "Invalid email or password.",
-        });
-      }
+      toast({
+        title: "Login Successful",
+        description: "Welcome back!",
+      });
+      router.push("/dashboard");
       setIsLoading(false);
     }, 1500);
   };
