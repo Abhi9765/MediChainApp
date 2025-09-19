@@ -52,7 +52,7 @@ export default function LoginPage() {
     setTimeout(() => {
       // In a real app, you would authenticate with a backend here.
       // For this demo, we'll just simulate a successful login.
-      if (email === "admin@medichain.com" && password === "password") {
+      if (email === "admin@medichain.com") {
          toast({
             title: "Login Successful",
             description: "Welcome back!",
