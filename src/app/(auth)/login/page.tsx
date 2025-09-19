@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -79,7 +80,7 @@ export default function LoginPage() {
         <div className="flex justify-center items-center mb-4">
             <HeartPulse className="h-8 w-8 text-primary" />
         </div>
-        <CardTitle className="text-2xl">MediChain Login</CardTitle>
+        <CardTitle className="text-2xl">InvenTra login</CardTitle>
         <CardDescription>
           Enter your credentials to access the inventory system.
         </CardDescription>
