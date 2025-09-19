@@ -20,25 +20,20 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [errors, setErrors] = useState({ email: "" });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { email: "", password: "" };
+    const newErrors = { email: "" };
 
     if (!email) {
       newErrors.email = "Email is required.";
       valid = false;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = "Email is invalid.";
-      valid = false;
-    }
-
-    if (!password) {
-      newErrors.password = "Password is required.";
       valid = false;
     }
 
@@ -108,7 +103,6 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required 
           />
-           {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
         </div>
       </CardContent>
       <CardFooter>
